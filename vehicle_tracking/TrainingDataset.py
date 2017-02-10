@@ -1,7 +1,7 @@
 
 import numpy as np
 import glob
-
+import cv2
 
 #TODO: matplotlib image will read these in on a scale of 0 to 1, but cv2.imread() will scale them from 0 to 255.
 
@@ -52,6 +52,36 @@ def main():
     print('Number of non-vehicle images: ', num_of_non_vehicle_img)
     print('Number of non-vehicle lables: ', num_of_non_vehicle_labels)
     assert(num_of_non_vehicle_labels == num_of_non_vehicle_img)   
+
+
+    # show image example
+    import matplotlib.pyplot as plt
+    import matplotlib.image as mpimg
+    ls_car_img_loc = dataset.getVehicleImgList()
+    ls_noncar_img_loc = dataset.getNonVehicleImgList()
+
+    idx = 3
+    img_car = cv2.imread(ls_car_img_loc[idx])
+    img1 = cv2.cvtColor(img_car, cv2.COLOR_BGR2RGB)
+    title1 = 'Car'
+    img_noncar = cv2.imread(ls_noncar_img_loc[idx])
+    img2 = cv2.cvtColor(img_noncar, cv2.COLOR_BGR2RGB)
+    title2 = 'Not-Car'
+
+    save_to_file = 'data/outputs/car_not_car.png'
+
+    f, (ax1, ax2) = plt.subplots(1, 2)
+    f.tight_layout()
+    ax1.imshow(img1)
+    ax1.set_title(title1, fontsize=30)
+    ax2.imshow(img2)
+    ax2.set_title(title2, fontsize=30)
+    # plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
+    if '' != save_to_file: 
+        plt.savefig(save_to_file)
+    plt.show()
+    plt.close()
+
 
 
 if __name__ == "__main__": 
