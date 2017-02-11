@@ -28,7 +28,7 @@ class TrainingDataset():
     def getNonVehicleImgList(self):
         return self.ls_x_loc_nonvehicle
 
-    def getXLocList(self):
+    def getXLoc(self):
         ls_x_loc =  self.ls_x_loc_vehicle + self.ls_x_loc_nonvehicle
         return ls_x_loc
 
@@ -40,7 +40,7 @@ class TrainingDataset():
 def main():
     dataset = TrainingDataset('data/vehicles/', 'data/non-vehicles/')
 
-    print('Number of images: ', len(dataset.getXLocList()))
+    print('Number of images: ', len(dataset.getXLoc()))
     print('Number of labels: ', len(dataset.getY()))
 
     print('Number of vehicle images: ', len(dataset.getVehicleImgList()))
@@ -60,7 +60,8 @@ def main():
     ls_car_img_loc = dataset.getVehicleImgList()
     ls_noncar_img_loc = dataset.getNonVehicleImgList()
 
-    idx = 3
+    idx = np.random.randint(0, min(len(dataset.getNonVehicleImgList()), len(dataset.getVehicleImgList())) )
+
     img_car = cv2.imread(ls_car_img_loc[idx])
     img1 = cv2.cvtColor(img_car, cv2.COLOR_BGR2RGB)
     title1 = 'Car'
