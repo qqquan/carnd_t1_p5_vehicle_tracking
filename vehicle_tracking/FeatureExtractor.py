@@ -5,9 +5,11 @@ from FeatureExtractor_WindowPlanner import WindowPlanner
 class FeatureExtractor():
 
     def __init__(self):
+
         self.window_planner = WindowPlanner()
         self.hog_extractor = HogExtractor()
         self.color_extractor = ColorExtractor()
+
 
     def extractFeatureAndWindows(img):
 
@@ -17,9 +19,9 @@ class FeatureExtractor():
 
         windows = self.window_planner.getWindows(img) # windows of upper-left and bottom-right pixel positions
 
-        hog_feature = self.hog_extractor(img, windows)
+        hog_feature = self.hog_extractor.getFeature(img, windows)
 
-        color_feature = self.color_extractor(img, windows)
+        color_feature = self.color_extractor.getFeature(img, windows)
 
         feature = np.concatenate((hog_feature, color_feature))
 
@@ -30,9 +32,12 @@ def main():
 
     feature_extractor = FeatureExtractor()
 
-    img_brg = cv2.imread('data/test_images/test6.jpg')
+    #####################################################
+    # Training Images
+    #####################################################
+    training_img_brg = cv2.imread('data/vehicles/GTI_Right/image0025.png')
 
-    features, windows = feature_extractor.extractFeatureAndWindows(img_brg)
+    features, windows = feature_extractor.extractFeatureAndWindows(training_img_brg)
     print('Feature shape: ', features.shape)
     print('Number of windows: ', len(windows))
     assert(len(features) == len(windows))
