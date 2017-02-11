@@ -1,7 +1,7 @@
 ﻿data
 
 .ipynb_checkpoints
-debug_output
+debug
 *.swp
 *.p
 .~lock*
@@ -17,3 +17,6 @@ README.html
 calibrated_camera.pickle
 
 log_lanefinding.txt
+
+
+*.log

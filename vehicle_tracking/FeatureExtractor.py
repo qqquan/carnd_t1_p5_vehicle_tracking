@@ -2,30 +2,36 @@ from FeatureExtractor_Hog import HogExtractor
 from FeatureExtractor_Color import ColorExtractor
 from FeatureExtractor_WindowPlanner import WindowPlanner
 
+import numpy as np
+
 class FeatureExtractor():
 
-    def __init__(self):
+    def __init__(self, training_image_shape=(64,64), pix_per_cell = 8, cell_per_block = 2):
 
-        self.window_planner = WindowPlanner()
-        self.hog_extractor = HogExtractor()
+        self.window_planner = WindowPlanner(training_image_shape, pix_per_cell = 8, cell_per_block = 2)
+        self.hog_extractor = HogExtractor(pix_per_cell = 8, cell_per_block = 2)
         self.color_extractor = ColorExtractor()
 
 
-    def extractFeatureAndWindows(img):
+    def extractFeatureAndWindows(self, img):
 
         if np.max(img) > 1:
             # jpg image ranges 0~255. png file does not need this because its range is 0~1
             img = img.astype(np.float32)/255
 
-        windows = self.window_planner.getWindows(img) # windows of upper-left and bottom-right pixel positions
+        windows = self.window_planner.getHogWindows(img) # windows of upper-left and bottom-right pixel positions of hog blocks
 
-        hog_feature = self.hog_extractor.getFeature(img, windows)
 
-        color_feature = self.color_extractor.getFeature(img, windows)
+        color_features = self.color_extractor.getFeatures(img, windows)
 
-        feature = np.concatenate((hog_feature, color_feature))
+        hog_features = self.hog_extractor.getFeatures(img, windows)
 
-        return feature, windows
+        features=[]
+        for color_per_win, hog_per_win in zip(color_features, hog_features):
+            feat = np.concatenate((color_per_win, hog_per_win))
+            features.append(feat)
+
+        return features, windows
 
 def main():
     import cv2
@@ -38,8 +44,9 @@ def main():
     training_img_brg = cv2.imread('data/vehicles/GTI_Right/image0025.png')
 
     features, windows = feature_extractor.extractFeatureAndWindows(training_img_brg)
-    print('Feature shape: ', features.shape)
     print('Number of windows: ', len(windows))
+    print('Number of features: ', len(features))
+    print('Feature shape for the first window: ', features[0].shape)
     assert(len(features) == len(windows))
 
 if __name__ == "__main__": 

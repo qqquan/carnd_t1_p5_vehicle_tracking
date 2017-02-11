@@ -2,15 +2,18 @@
 import cv2
 
 
-class WindowPlanner(object):
-    """docstring for WindowPlanner"""
-    def __init__(self, training_image_shape = (64,64)):
-        super(WindowPlanner, self).__init__()
+class WindowPlanner():
+    def __init__(self, training_image_shape = (64,64), pix_per_cell = 8, cell_per_block = 2):
 
         assert len(training_image_shape) == 2, 'Expect a width x length 2D shape, but training_image_shape = {} \n'. format(training_image_shape) 
         self.training_image_shape = training_image_shape
-        self.windows = {}
 
+        pix_per_blk_pos = pix_per_cell
+
+        self.pix_step = 8 
+
+
+    # window size has to equal to training_image_shape
     def getWindows(self, img):
         """Summary
         
@@ -30,7 +33,14 @@ class WindowPlanner(object):
                 img = cv2.resize(img, training_shape)
             windows=   [  ((0,0), training_shape) ] # scan-window is over the whole image
         else:
+
+            
+
             print('//TODO: Find scan windows for a video frame')
+
+            #  sliding step has to be divisable by pix_per_blk_pos or pix_per_cell
+
+
             windows.append([])
 
         return windows
