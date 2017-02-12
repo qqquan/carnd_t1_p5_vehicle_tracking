@@ -173,12 +173,19 @@ def main():
     car_brg = cv2.imread('data/vehicles/GTI_Right/image0177.png')
     noncar_brg = cv2.imread('data/non-vehicles/GTI/image155.png')
 
+    car = cv2.cvtColor(car_brg, cv2.COLOR_BGR2RGB)
+    noncar = cv2.cvtColor(noncar_brg, cv2.COLOR_BGR2RGB)
+    visualize([[car, noncar]], [['Car image', 'Non-car Image']])
+
     car = cv2.cvtColor(car_brg, cv2.COLOR_BGR2YCrCb)
     noncar = cv2.cvtColor(noncar_brg, cv2.COLOR_BGR2YCrCb)
 
     orient=9
     pix_per_cell=8
     cell_per_block=2
+
+    img_list = []
+    title_list = []
     img = car[:,:,0]
     car_ch1_feat, car_ch1_hog = get_hog_features(img,   orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block, 
                         vis=True, feature_vec=True)
@@ -188,16 +195,39 @@ def main():
                         vis=True, feature_vec=True)
 
 
-    img_list = [car[:,:,0], car_ch1_hog, noncar[:,:,0], noncar_ch1_hog]
-    title_list = ['Car Ch1', 'Car Ch1 Hog', 'Non-car Ch1', 'Non-car Ch1 Hog']
+    img_list.append([car[:,:,0], car_ch1_hog, noncar[:,:,0], noncar_ch1_hog])
+    title_list.append(['Car Ch1', 'Car Ch1 Hog', 'Non-car Ch1', 'Non-car Ch1 Hog'])
 
 
 
     
+    img = car[:,:,1]
+    car_Ch2_feat, car_Ch2_hog = get_hog_features(img,   orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block, 
+                        vis=True, feature_vec=True)
 
+    img = noncar[:,:,1]
+    noncar_Ch2_feat, noncar_Ch2_hog = get_hog_features(img,   orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block, 
+                        vis=True, feature_vec=True)
+
+
+    img_list.append([car[:,:,1], car_Ch2_hog, noncar[:,:,1], noncar_Ch2_hog])
+    title_list.append(['Car Ch2', 'Car Ch2 Hog', 'Non-car Ch2', 'Non-car Ch2 Hog'])
+
+
+    img = car[:,:,2]
+    car_Ch3_feat, car_Ch3_hog = get_hog_features(img,   orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block, 
+                        vis=True, feature_vec=True)
+
+    img = noncar[:,:,2]
+    noncar_Ch3_feat, noncar_Ch3_hog = get_hog_features(img,   orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block, 
+                        vis=True, feature_vec=True)
+
+
+    img_list.append([car[:,:,2], car_Ch3_hog, noncar[:,:,2], noncar_Ch3_hog])
+    title_list.append(['Car Ch3', 'Car Ch3 Hog', 'Non-car Ch3', 'Non-car Ch3 Hog'])
 
     
-    visualizeImg(img_list, title_list)
+    visualize(img_list, title_list)
     
 
 
@@ -205,30 +235,50 @@ def main():
     print('\n**************** All Tests Passed! *******************')
 
 
-def visualizeImg(brg_img_list, title_list, save_to_file=''):
+
+def visualize(rbg_img_matrix, title_matrix, save_to_file=''):
+    """show images in a grid layout
+    
+    Args:
+        rbg_img_matrix (LIST): a list of row X column grid, 
+                                e.g. [ [img1, img2, img3], 
+                                       [img11, img22, img33] ]
+        title_matrix (LIST): Same shape as img matrix
+        save_to_file (str, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     import matplotlib.pyplot as plt
     import matplotlib.image as mpimg
 
-    assert len(brg_img_list)==len(title_list)
-    img_num = len(brg_img_list)
-    col_len = int(np.ceil(np.sqrt(img_num))) # try to make figure square
-    row_len = img_num//col_len
-    if col_len*row_len < img_num:
-        row_len += 1
+    assert len(rbg_img_matrix)==len(title_matrix)
+    row_len = len(rbg_img_matrix)
+    col_len = len(rbg_img_matrix[0])
+    assert len(rbg_img_matrix[0]) == len(title_matrix[0]), 'Expect a row has the same number of images and titles'
 
-    print(' row_len= ', row_len)
-    print(' col_len= ', col_len)
+
     f, axes = plt.subplots(row_len, col_len)
 
-    print('axes shape: ', axes.shape)
     f.tight_layout()
 
-    for img_brg, title, ax in zip (brg_img_list, title_list, axes.reshape(-1)):
-        # img = cv2.cvtColor(img_brg, cv2.COLOR_BGR2RGB)
-        img = img_brg
-        ax.imshow(img)
-        ax.set_title(title)
+    for row in range(row_len):
 
+        assert len(rbg_img_matrix[row]) == len(title_matrix[row]) , 'Expect every row has the same number of images and title'
+        assert len(rbg_img_matrix[row]) == col_len , 'Expect every row has the same length'
+
+        for col in range(col_len):
+
+            if row_len == 1:
+                ax = axes[col]
+            else:
+                ax = axes[row][col]
+                
+            img = rbg_img_matrix[row][col]
+            title = title_matrix[row][col]
+            ax.imshow(img)
+            ax.set_title(title)
+            ax.axis('off')
 
 
     # plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
