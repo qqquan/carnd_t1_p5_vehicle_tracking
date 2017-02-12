@@ -53,6 +53,12 @@ def main():
     print('Number of non-vehicle lables: ', num_of_non_vehicle_labels)
     assert(num_of_non_vehicle_labels == num_of_non_vehicle_img)   
 
+    labels = dataset.getY()
+    label_set = set(labels)
+    print('label set: ', label_set)
+    assert 1 in label_set
+    assert 0 in label_set
+    assert len(label_set) == 2
 
     # show image example
     import matplotlib.pyplot as plt

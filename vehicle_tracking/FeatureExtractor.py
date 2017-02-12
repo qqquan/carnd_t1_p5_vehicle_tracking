@@ -18,8 +18,18 @@ class FeatureExtractor():
         self.color_extractor = ColorExtractor()
 
 
-    def extractFeatureAndWindows(self, img):
-        print('//TODO: add window zooming with different ROI')
+    def extractFeaturesAndWindows(self, img):
+        """Extract feature vectors and corresponding inspected windows for an image.
+        
+        Args:
+            img (TYPE): Description
+        
+        Returns:
+            TYPE: feature vectors and corresponding inspected windows
+        """
+
+
+        #//TODO: add window zooming with different ROI
         if np.max(img) > 1:
             # jpg image ranges 0~255. png file does not need this because its range is 0~1
             img = img.astype(np.float32)/255
@@ -36,6 +46,8 @@ class FeatureExtractor():
             feat = np.concatenate((color_per_win, hog_per_win))
             features.append(feat)
 
+        #TODO: Make a new window list if image is scaled
+
         return features, windows
 
 def main():
@@ -43,7 +55,6 @@ def main():
 
     import cv2
 
-    feature_extractor = FeatureExtractor()
 
     #####################################################
     # Training Images
@@ -52,7 +63,9 @@ def main():
 
     training_img_brg = cv2.imread('data/vehicles/GTI_Right/image0025.png')
 
-    features, windows = feature_extractor.extractFeatureAndWindows(training_img_brg)
+    feature_extractor = FeatureExtractor(training_image_shape=training_img_brg.shape[:2], pix_per_cell = 8, cell_per_block = 2)
+
+    features, windows = feature_extractor.extractFeaturesAndWindows(training_img_brg)
     print('Number of windows: ', len(windows))
     print('Number of features: ', len(features))
     print('Feature shape for the first window: ', features[0].shape)

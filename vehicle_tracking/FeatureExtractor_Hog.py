@@ -179,6 +179,8 @@ def main():
 
     car = cv2.cvtColor(car_brg, cv2.COLOR_BGR2YCrCb)
     noncar = cv2.cvtColor(noncar_brg, cv2.COLOR_BGR2YCrCb)
+    # car = cv2.cvtColor(car_brg, cv2.COLOR_BGR2HLS)
+    # noncar = cv2.cvtColor(noncar_brg, cv2.COLOR_BGR2HLS)
 
     orient=9
     pix_per_cell=8
@@ -247,7 +249,7 @@ def visualize(rbg_img_matrix, title_matrix, save_to_file=''):
         save_to_file (str, optional): Description
     
     Returns:
-        TYPE: Description
+        None: None
     """
     import matplotlib.pyplot as plt
     import matplotlib.image as mpimg
