@@ -8,6 +8,14 @@ import cv2
 # based on Udacity course material
 def generateSlidingWindows(img_shape, rowcol_stride_pix, col_start_stop=[None, None], row_start_stop=[None, None] , rowcol_window=(64, 64)):
     # If col and/or row start/stop positions not defined, set to image size
+
+    if row_start_stop[0] is None or row_start_stop[1] is None:
+        row_start = 0
+        row_stop = img_shape[0]
+    else:
+        row_start = row_start_stop[0]
+        row_stop = row_start_stop[1]    
+
     if col_start_stop[0] is None or col_start_stop[1] is None:
         col_start = 0
         col_stop = img_shape[1]
@@ -15,35 +23,31 @@ def generateSlidingWindows(img_shape, rowcol_stride_pix, col_start_stop=[None, N
         col_start = col_start_stop[0]
         col_stop = col_start_stop[1]     
 
-    if row_start_stop[0] is None or row_start_stop[1] is None:
-        row_start = 0
-        row_stop = img_shape[0]
-    else:
-        row_start = row_start_stop[0]
-        row_stop = row_start_stop[1]     
+ 
 
     # Compute the span of the region to be searched
     # Compute the number of pixels per step in col/row
-    col_step = rowcol_stride_pix[1]
     row_step = rowcol_stride_pix[0]
+    col_step = rowcol_stride_pix[1]
 
-    col_range = range(col_start, col_stop+1, col_step)
-    row_range = range(row_start, row_stop+1, row_step)
+    upperleft_row_range = range(row_start, row_stop+1-rowcol_window[0], row_step) # row position of upper left corners of windows
+    upperleft_col_range = range(col_start, col_stop+1-rowcol_window[1], col_step)
 
     # Compute the number of windows in col/row
     # Initialize a list to append window positions to
     window_list = []
     # Loop through finding col and row window positions
 
-    for col in col_range:
-        for row in row_range:
+    for col in upperleft_col_range:
+        for row in upperleft_row_range:
             # Calculate each window position
             upper_pos = (row, col)
             lower_pos = (row+rowcol_window[0], col+rowcol_window[1])
             box = (upper_pos, lower_pos)
             # Append window position to list
             window_list.append(box)
-    # Return the list of windows
+
+    #TODO: if the the last window does not cover the row-col edges, make additional windows stepping from end edge for one step. If the window size is small, the missing edge pixels do not have a huge impact on detection area.
 
     return window_list
 
@@ -185,6 +189,17 @@ def main():
     row_step = 8
     col_step = 16
     win_size = (100,200)
+
+    print('img_col = ', img_col)
+    print('img_row = ', img_row)
+    print('col_start = ', col_start)
+    print('col_stop = ', col_stop)
+    print('row_start = ', row_start)
+    print('row_stop = ', row_stop)
+    print('row_step = ', row_step)
+    print('col_step = ', col_step)
+    print('win_size = ', win_size)
+
     windows = generateSlidingWindows(   img_shape=(img_row, img_col), 
                                         rowcol_stride_pix=(row_step,col_step), 
                                         col_start_stop=[col_start, col_stop], 
@@ -215,7 +230,18 @@ def main():
     print('col_step = ', w01_col_step)
     assert (w01_row_step == row_step ) or (w01_col_step==col_step), "window moves a step either in column or row axis, not both"
 
+    w_last = windows[-1]
+    print('Last window position: ({},{}),  ({},{})'.format(w_last[0][0], w_last[0][1] ,w_last[1][0]  ,w_last[1][1]  ))
+
     print('\n------- rectangular window test - all windows covered ------- ')
+    print('Number of windows: ', len(windows))
+
+    row_window_positions = ((row_stop-row_start - win_size[0])//row_step) +1
+    col_window_positions = ((col_stop-col_start - win_size[1])//col_step) +1
+    expected_win_num =  row_window_positions* col_window_positions
+
+
+    assert len(windows) == expected_win_num, 'Expected window number = {}. Actual window number = {}. \n row_window_positions = {}, col_window_positions = {}.'.format(expected_win_num, len(windows), row_window_positions, col_window_positions)
     is_init = True
     w0 = None
     for w in windows:
@@ -239,8 +265,8 @@ def main():
         w01_col_step = w1[0][1] - w0[0][1]
 
         assert (w01_row_step == row_step ) or (w01_col_step==col_step), "window moves a step either in column or row axis, not both"
-        assert ((w01_row_step == row_step ) and (w01_col_step==col_step) ) == False, "Expected: window moves a step either in column or row axis. \
-                                                                                        Actual:  the window moves at both direction. \
+        assert ((w01_row_step == row_step ) and (w01_col_step==col_step) ) == False, "Expected: The window moves a step either in column or row axis. \
+                                                                                        Actual:  The window moves at both directions. \
                                                                                         w01_row_step = {},  w01_col_step = {}".format(w01_row_step, w01_col_step)
 
         w0 = w1 # w0 stores the last window
