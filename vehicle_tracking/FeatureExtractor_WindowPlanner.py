@@ -295,7 +295,7 @@ def main():
     windows = windows_planner.getHogWindows(training_img_brg)
 
     print('Number of windows: ', len(windows))
-    assert(len(windows) == 1)
+    assert len(windows) == 1, 'Expect only one window for a training image. '
 
     print('Shape of the first window :', windows[0])
     assert(windows[0][0] == (0,0)) # upper left pos should be at 0

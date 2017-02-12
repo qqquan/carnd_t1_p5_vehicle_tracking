@@ -110,6 +110,7 @@ def main():
     w1 = ((0,0),img.shape[:2])
     windows = [w1]
 
+    # function under test:
     features = hog_extractor.getFeatures(img, windows)
 
     print('Number of feature vectors: ', len(features))
@@ -161,6 +162,83 @@ def main():
     feat1_shape = features[1].shape
     print('Feature shape for the 2nd window: ', feat1_shape)
     assert feat1_shape[0]>0
+
+
+
+    #####################################################
+    # Hog() Test 
+    #####################################################
+    print('\n######################### Hog() Test ############################\n')
+    logger.info('######################### Hog() Test ')
+    car_brg = cv2.imread('data/vehicles/GTI_Right/image0177.png')
+    noncar_brg = cv2.imread('data/non-vehicles/GTI/image155.png')
+
+    car = cv2.cvtColor(car_brg, cv2.COLOR_BGR2YCrCb)
+    noncar = cv2.cvtColor(noncar_brg, cv2.COLOR_BGR2YCrCb)
+
+    orient=9
+    pix_per_cell=8
+    cell_per_block=2
+    img = car[:,:,0]
+    car_ch1_feat, car_ch1_hog = get_hog_features(img,   orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block, 
+                        vis=True, feature_vec=True)
+
+    img = noncar[:,:,0]
+    noncar_ch1_feat, noncar_ch1_hog = get_hog_features(img,   orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block, 
+                        vis=True, feature_vec=True)
+
+
+    img_list = [car[:,:,0], car_ch1_hog, noncar[:,:,0], noncar_ch1_hog]
+    title_list = ['Car Ch1', 'Car Ch1 Hog', 'Non-car Ch1', 'Non-car Ch1 Hog']
+
+
+
+    
+
+
+    
+    visualizeImg(img_list, title_list)
+    
+
+
+
+    print('\n**************** All Tests Passed! *******************')
+
+
+def visualizeImg(brg_img_list, title_list, save_to_file=''):
+    import matplotlib.pyplot as plt
+    import matplotlib.image as mpimg
+
+    assert len(brg_img_list)==len(title_list)
+    img_num = len(brg_img_list)
+    col_len = int(np.ceil(np.sqrt(img_num))) # try to make figure square
+    row_len = img_num//col_len
+    if col_len*row_len < img_num:
+        row_len += 1
+
+    print(' row_len= ', row_len)
+    print(' col_len= ', col_len)
+    f, axes = plt.subplots(row_len, col_len)
+
+    print('axes shape: ', axes.shape)
+    f.tight_layout()
+
+    for img_brg, title, ax in zip (brg_img_list, title_list, axes.reshape(-1)):
+        # img = cv2.cvtColor(img_brg, cv2.COLOR_BGR2RGB)
+        img = img_brg
+        ax.imshow(img)
+        ax.set_title(title)
+
+
+
+    # plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
+    if '' != save_to_file: 
+        plt.savefig(save_to_file)
+    plt.show()
+    plt.close()   
+
+
+
 
 if __name__ == "__main__": 
     import time
