@@ -9,8 +9,9 @@ class Classifier():
 
         self.svc = LinearSVC()
 
-        X_scaler = StandardScaler().fit(X)
-        scaled_X = X_scaler.transform(X)
+        self.X_scaler = StandardScaler().fit(X)
+
+        scaled_X = self.X_scaler.transform(X)
 
         X_train, X_test, y_train, y_test = train_test_split(scaled_X, y, test_size=0.2)
 
@@ -23,7 +24,8 @@ class Classifier():
         return self.accuracy
 
     def predict(self, X):
-        return self.svc.predict(X)
+        scaled_X = self.X_scaler.transform(X)
+        return self.svc.predict(scaled_X)
 
 
 def main():
@@ -85,11 +87,10 @@ def main():
 
 
     print('\n\n######################### Module Test on Classifier Prediction ############################ \n')
+    print('---------- Test predict() on Car images ------------')
     assert debug_num*2 < len(dataset.getXLoc())/2
 
     car_loc_list =x_loc_list[debug_num:2*debug_num]
-
-    test_y = np.concatenate((y[-debug_num:-1] ,y[0:debug_num]))
 
     assert len(car_loc_list)>0
 
@@ -105,8 +106,32 @@ def main():
 
     predicitons = vehicle_classifier.predict(X)
     pred_hit_num = np.count_nonzero(predicitons)
-    print('Prediction hits = {}, misses = {}'.format(pred_hit_num, len(predicitons)-pred_hit_num))
+    print('Car Prediction hits = {}, misses = {}'.format(pred_hit_num, len(predicitons)-pred_hit_num))
+    print('Car Prediction Accuracy: ', pred_hit_num/len(predicitons) )
     assert pred_hit_num/len(predicitons) > 0.5
+
+    print('\n---------- Test predict() on Non-car images ------------')
+    noncar_loc_list =x_loc_list[-2*debug_num:-1*debug_num]
+
+
+    assert len(noncar_loc_list)>0
+
+    X = []
+    for x_loc in noncar_loc_list:
+        img_bgr = cv2.imread(x_loc)
+
+        features,_ = feature_extractor.extractFeaturesAndWindows(img_bgr)
+
+        assert len(features) == 1
+        X.extend(features)
+
+
+    predicitons = vehicle_classifier.predict(X)
+    pred_hit_num = len(predicitons) -np.count_nonzero(predicitons)
+    print('Non-car Prediction hits = {}, misses = {}'.format(pred_hit_num, len(predicitons)-pred_hit_num))
+    print('Non-car Prediction Accuracy: ', pred_hit_num/len(predicitons) )
+    assert pred_hit_num/len(predicitons) > 0.5
+
 
     
     print('\n**************** All Tests Passed! *******************')
