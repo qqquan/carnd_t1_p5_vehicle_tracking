@@ -1,3 +1,8 @@
+import logging
+logger = logging.getLogger(__name__)
+logger.info('FeatureExtractor submodule loaded')
+
+
 from FeatureExtractor_Hog import HogExtractor
 from FeatureExtractor_Color import ColorExtractor
 from FeatureExtractor_WindowPlanner import WindowPlanner
@@ -20,7 +25,7 @@ class FeatureExtractor():
             img = img.astype(np.float32)/255
 
         windows = self.window_planner.getHogWindows(img) # windows of upper-left and bottom-right pixel positions of hog blocks
-
+        logger.debug('FeatureExtractor - window_planner.getHogWindows  - number of windows: {}'.format(len(windows)))
 
         color_features = self.color_extractor.getFeatures(img, windows)
 
@@ -34,6 +39,8 @@ class FeatureExtractor():
         return features, windows
 
 def main():
+    logging.basicConfig(filename='debug.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
     import cv2
 
     feature_extractor = FeatureExtractor()
@@ -41,6 +48,8 @@ def main():
     #####################################################
     # Training Images
     #####################################################
+    logger.info(' ####  FeatureExtractor - Training Image Test  ###')
+
     training_img_brg = cv2.imread('data/vehicles/GTI_Right/image0025.png')
 
     features, windows = feature_extractor.extractFeatureAndWindows(training_img_brg)

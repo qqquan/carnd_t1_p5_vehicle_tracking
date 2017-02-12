@@ -1,5 +1,51 @@
+import logging
+logger = logging.getLogger(__name__)
+logger.info('WindowPlanner submodule loaded')
 
 import cv2
+
+
+# based on Udacity course material
+def generateSlidingWindows(img_shape, rowcol_stride_pix, col_start_stop=[None, None], row_start_stop=[None, None] , rowcol_window=(64, 64)):
+    # If col and/or row start/stop positions not defined, set to image size
+    if col_start_stop[0] is None or col_start_stop[1] is None:
+        col_start = 0
+        col_stop = img_shape[1]
+    else:
+        col_start = col_start_stop[0]
+        col_stop = col_start_stop[1]     
+
+    if row_start_stop[0] is None or row_start_stop[1] is None:
+        row_start = 0
+        row_stop = img_shape[0]
+    else:
+        row_start = row_start_stop[0]
+        row_stop = row_start_stop[1]     
+
+    # Compute the span of the region to be searched
+    # Compute the number of pixels per step in col/row
+    col_step = rowcol_stride_pix[1]
+    row_step = rowcol_stride_pix[0]
+
+    col_range = range(col_start, col_stop+1, col_step)
+    row_range = range(row_start, row_stop+1, row_step)
+
+    # Compute the number of windows in col/row
+    # Initialize a list to append window positions to
+    window_list = []
+    # Loop through finding col and row window positions
+
+    for col in col_range:
+        for row in row_range:
+            # Calculate each window position
+            upper_pos = (row, col)
+            lower_pos = (row+rowcol_window[0], col+rowcol_window[1])
+            box = (upper_pos, lower_pos)
+            # Append window position to list
+            window_list.append(box)
+    # Return the list of windows
+
+    return window_list
 
 
 class WindowPlanner():
@@ -14,8 +60,8 @@ class WindowPlanner():
 
 
     # window size has to equal to training_image_shape
-    def getWindows(self, img):
-        """Summary
+    def getHogWindows(self, img):
+        """eatch window corner is a hog cell corner. as Hog block moves by cell
         
         Args:
             img (TYPE): Description
@@ -45,7 +91,10 @@ class WindowPlanner():
 
         return windows
 
+
 def main():
+    logging.basicConfig(filename='debug.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger.info(' #### WindowPlanner -  Module Testing  ###')
 
 
 
@@ -58,7 +107,7 @@ def main():
 
     windows_planner = WindowPlanner(training_img_brg.shape[:2])
 
-    windows = windows_planner.getWindows(training_img_brg)
+    windows = windows_planner.getHogWindows(training_img_brg)
 
     print('Number of windows: ', len(windows))
     assert(len(windows) == 1)
@@ -75,12 +124,129 @@ def main():
 
     print('Video frame shape: ', video_img_brg.shape)
 
-    windows = windows_planner.getWindows(video_img_brg)
+    windows = windows_planner.getHogWindows(video_img_brg)
 
     print('Number of windows: ', len(windows))
     # assert(len(windows) == 1)
 
     print('Shape of the first window :', windows[0])
+
+    #####################################################
+    # Module Test on generateSlidingWindows()
+    #####################################################
+    print('\n\n######################### Module Test on generateSlidingWindows() ############################ \n')
+    print('------- square window test------- ')
+    img_col = 1280
+    img_row = 720
+    col_start = 0
+    col_stop = 1280
+    row_start = 400
+    row_stop = 720
+    pix_per_cell = 8
+    win_size = 64
+    windows = generateSlidingWindows(   img_shape=(img_row, img_col), 
+                                        rowcol_stride_pix=(pix_per_cell,pix_per_cell), 
+                                        col_start_stop=[col_start, col_stop], 
+                                        row_start_stop=[row_start, row_stop] , 
+                                        rowcol_window=(win_size, win_size))
+
+    w0 = windows[0]
+    w1 = windows[1]
+
+    w0_row = w0[1][0] - w0[0][0]
+    w0_col = w0[1][1] - w0[0][1]
+    w1_row = w1[1][0] - w1[0][0]
+    w1_col = w1[1][1] - w1[0][1]
+
+    print('window 0: ({},{}),  ({},{})'.format(w0[0][0], w0[0][1] ,w0[1][0]  ,w0[1][1]  ))
+    print('window 1: ({},{}),  ({},{})'.format(w1[0][0], w1[0][1] ,w1[1][0]  ,w1[1][1]  ))
+    print('window rows: {}, {}'.format(w0_row, w1_row))
+    print('window columns: {}, {}'.format(w0_col, w1_col))
+
+    assert w0_row == win_size
+    assert w0_col == win_size
+    assert w1_row == win_size
+    assert w1_col == win_size
+
+    row_step = w1[0][0] - w0[0][0]
+    col_step = w1[0][1] - w0[0][1]
+    print('row_step = ', row_step)
+    print('col_step = ', col_step)
+    assert (row_step+col_step) == pix_per_cell, "window moves a step either in column or row axis, not both"
+
+    print('\n------- rectangular window test------- ')
+    img_col = 1280
+    img_row = 720
+    col_start = 0
+    col_stop = 1280
+    row_start = 400
+    row_stop = 720
+
+    row_step = 8
+    col_step = 16
+    win_size = (100,200)
+    windows = generateSlidingWindows(   img_shape=(img_row, img_col), 
+                                        rowcol_stride_pix=(row_step,col_step), 
+                                        col_start_stop=[col_start, col_stop], 
+                                        row_start_stop=[row_start, row_stop] , 
+                                        rowcol_window=(win_size[0], win_size[1]))
+
+    w0 = windows[0]
+    w1 = windows[1]
+
+    w0_row = w0[1][0] - w0[0][0]
+    w0_col = w0[1][1] - w0[0][1]
+    w1_row = w1[1][0] - w1[0][0]
+    w1_col = w1[1][1] - w1[0][1]
+
+    print('window 0: ({},{}),  ({},{})'.format(w0[0][0], w0[0][1] ,w0[1][0]  ,w0[1][1]  ))
+    print('window 1: ({},{}),  ({},{})'.format(w1[0][0], w1[0][1] ,w1[1][0]  ,w1[1][1]  ))
+    print('window rows: {}, {}'.format(w0_row, w1_row))
+    print('window columns: {}, {}'.format(w0_col, w1_col))
+
+    assert w0_row == win_size[0]
+    assert w0_col == win_size[1]
+    assert w1_row == win_size[0]
+    assert w1_col == win_size[1]
+
+    w01_row_step = w1[0][0] - w0[0][0]
+    w01_col_step = w1[0][1] - w0[0][1]
+    print('row_step = ', w01_row_step)
+    print('col_step = ', w01_col_step)
+    assert (w01_row_step == row_step ) or (w01_col_step==col_step), "window moves a step either in column or row axis, not both"
+
+    print('\n------- rectangular window test - all windows covered ------- ')
+    is_init = True
+    w0 = None
+    for w in windows:
+        if is_init:
+            is_init = False
+            w0 = w # w0 stores the last window
+            break
+
+        w1 = w
+
+
+        w0_row = w0[1][0] - w0[0][0]
+        w0_col = w0[1][1] - w0[0][1]
+        w1_row = w1[1][0] - w1[0][0]
+        w1_col = w1[1][1] - w1[0][1]
+        assert w0_row == win_size[0], 'past window - row_size = {}, win_size = {}'.format( w0_row,   win_size[0])
+        assert w0_col == win_size[1], 'past window - col_size = {}, win_size = {}'.format( w0_col,   win_size[1])
+        assert w1_row == win_size[0], 'new window - row_size = {}, win_size = {}'.format( w1_row,   win_size[0])
+        assert w1_col == win_size[1], 'new window - col_size = {}, win_size = {}'.format( w1_col,   win_size[1])
+        w01_row_step = w1[0][0] - w0[0][0]
+        w01_col_step = w1[0][1] - w0[0][1]
+
+        assert (w01_row_step == row_step ) or (w01_col_step==col_step), "window moves a step either in column or row axis, not both"
+        assert ((w01_row_step == row_step ) and (w01_col_step==col_step) ) == False, "Expected: window moves a step either in column or row axis. \
+                                                                                        Actual:  the window moves at both direction. \
+                                                                                        w01_row_step = {},  w01_col_step = {}".format(w01_row_step, w01_col_step)
+
+        w0 = w1 # w0 stores the last window
+
+
+
 
 if __name__ == "__main__": 
     import time
