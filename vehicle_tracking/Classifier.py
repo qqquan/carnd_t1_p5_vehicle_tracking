@@ -18,16 +18,13 @@ class Classifier():
 
         self.accuracy = round(self.svc.score(X_test, y_test), 4)
 
-    # def train(self, feature_vectors, lables ):
-
-    #     accuracy = 0
-    #     return accuracy
-
-    def predict(self, a_feature_vector):
-        pass
 
     def getAccuracy(self):
         return self.accuracy
+
+    def predict(self, X):
+        return self.svc.predict(X)
+
 
 def main():
     import numpy as np
@@ -60,17 +57,17 @@ def main():
     print('\n\n######################### Module Test on Classifier Training ############################ \n')
     debug_num = 100 
     print('Number of images for training: ', 2*debug_num)
-    x_loc_list = x_loc_list[-debug_num:-1]  + x_loc_list[0:debug_num]
-    y = np.concatenate((y[-debug_num:-1] ,y[0:debug_num]))
+    test_x_loc_list = x_loc_list[-debug_num:-1]  + x_loc_list[0:debug_num]
+    test_y = np.concatenate((y[-debug_num:-1] ,y[0:debug_num]))
 
-    assert len(x_loc_list)>0
-    assert len(x_loc_list) == len(y)
+    assert len(test_x_loc_list)>0
+    assert len(test_x_loc_list) == len(test_y)
 
     from FeatureExtractor import FeatureExtractor
 
     feature_extractor = FeatureExtractor()
     X = []
-    for x_loc in x_loc_list:
+    for x_loc in test_x_loc_list:
         img_bgr = cv2.imread(x_loc)
 
         features,_ = feature_extractor.extractFeaturesAndWindows(img_bgr)
@@ -78,14 +75,40 @@ def main():
         assert len(features) == 1
         X.extend(features)
 
-    assert len(X) == len(y), 'Num of feature vectors: {}, number of labels: {}'.format(len(X), len(y) )
+    assert len(X) == len(test_y), 'Num of feature vectors: {}, number of labels: {}'.format(len(X), len(y) )
 
-    vehicle_classifier = Classifier(X,y)
+    vehicle_classifier = Classifier(X,test_y)
 
     print('Accuracy: ', vehicle_classifier.getAccuracy())
 
     assert vehicle_classifier.getAccuracy() > 0.5
 
+
+    print('\n\n######################### Module Test on Classifier Prediction ############################ \n')
+    assert debug_num*2 < len(dataset.getXLoc())/2
+
+    car_loc_list =x_loc_list[debug_num:2*debug_num]
+
+    test_y = np.concatenate((y[-debug_num:-1] ,y[0:debug_num]))
+
+    assert len(car_loc_list)>0
+
+    X = []
+    for x_loc in car_loc_list:
+        img_bgr = cv2.imread(x_loc)
+
+        features,_ = feature_extractor.extractFeaturesAndWindows(img_bgr)
+
+        assert len(features) == 1
+        X.extend(features)
+
+
+    predicitons = vehicle_classifier.predict(X)
+    pred_hit_num = np.count_nonzero(predicitons)
+    print('Prediction hits = {}, misses = {}'.format(pred_hit_num, len(predicitons)-pred_hit_num))
+    assert pred_hit_num/len(predicitons) > 0.5
+
+    
     print('\n**************** All Tests Passed! *******************')
 
 if __name__ == "__main__": 
