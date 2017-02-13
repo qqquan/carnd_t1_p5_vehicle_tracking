@@ -7,6 +7,7 @@ from TrainingDataset import TrainingDataset
 from FeatureExtractor import FeatureExtractor
 from Classifier import Classifier
 from HeatMap import FilteredHeatMap
+from CarBoxList import CarBoxList
 
 import cv2
 import os
@@ -15,19 +16,6 @@ import numpy as np
 from scipy.ndimage.measurements import label
 
 
-# from Ryan Keenan
-def draw_labeled_bboxes(img, labels):
-    for car_number in range(1, labels[1]+1):
-        nonzero = (labels[0] == car_number).nonzero()
-
-        nonzeroy = np.array(nonzero[0])
-        nonzerox = np.array(nonzero[1])
-
-        bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
-
-        cv2.rectangle(img, bbox[0], bbox[1], (0,0,255),6)
-
-    return img
 
 
 class VehicleDetector():
@@ -69,6 +57,7 @@ class VehicleDetector():
             self.vehicle_classifier = self.trainClassifier(x_loc_list, y)
 
         self.filtered_heat = FilteredHeatMap(max_count=filter_maxcount, threshold=heat_threhold)
+        self.car_box_list = CarBoxList()
 
     def trainClassifier(self, x_loc_list, y):
 
@@ -130,18 +119,47 @@ class VehicleDetector():
         self.scanImg(img_bgr)
         labels = label( self.filtered_heat.getFilteredHeatmap() )
 
-        labled_img = draw_labeled_bboxes(np.copy(img_bgr), labels)
+        labled_img = self.draw_labeled_bboxes(np.copy(img_bgr), labels)
 
         return labled_img, labels[0]  # return labeled image and label map
 
+    def resetHeatmap(self):
+        self.filtered_heat.reset()
+
+    # from Ryan Keenan
+    def draw_labeled_bboxes(self, img, labels):
+        for car_number in range(1, labels[1]+1):
+            nonzero = (labels[0] == car_number).nonzero()
+
+            nonzeroy = np.array(nonzero[0])
+            nonzerox = np.array(nonzero[1])
+
+            bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
+            self.car_box_list.update(car_number-1, bbox)
 
 
+        car_boxes = self.car_box_list.getBoxList()
+
+        for box in car_boxes:
+            ul_pos = box[0]
+            br_pos = box[1]
+
+            ul_row = int(ul_pos[0])
+            ul_col = int(ul_pos[1])
+
+            br_row = int(br_pos[0])
+            br_col = int(br_pos[1])
+
+            cv2.rectangle(img, (ul_row, ul_col), (br_row, br_col), (255,0,0),6)
+
+        return img
 def main():
+    from Util_Debug import visualize
+    import glob
 
     logging.basicConfig(filename='debug.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     logger.info('######################### VehicleDetector - Module Test ############################')
 
-    from Util_Debug import visualize
 
     print('\n######################### Module Test ############################\n')
 
@@ -174,16 +192,16 @@ def main():
     # video_img_rgb= cv2.cvtColor(video_img_bgr, cv2.COLOR_BGR2RGB)
     visualize(  [[img_rgb_marked, heatmap1], [img_rgb_marked2, heatmap2]], 
                 [[ 'Marked Image - Example 1', 'Heatmap - Example 1'], ['Marked Image - Example 2', 'Heatmap - Example 2']],
-                'data/outputs/car_detection_windows.png', enable_show=True)
+                'data/outputs/car_detection_windows.png', enable_show=False)
 
 
-    print('--------- test label() ------ ')
+    print('--------- Test label() ------ ')
     video_img_bgr1 = cv2.imread('data/test_images/test3.jpg')
 
     img_labled_bgr1, label_map1 = car_detector.labelCars(video_img_bgr1)
 
     video_img_bgr2 = cv2.imread('data/test_images/test6.jpg')
-
+    car_detector.resetHeatmap() # image is not related to previous one
     img_labled_bgr2, label_map2 = car_detector.labelCars(video_img_bgr2)
 
     img_labled_rgb1= cv2.cvtColor(img_labled_bgr1, cv2.COLOR_BGR2RGB)
@@ -191,11 +209,31 @@ def main():
     # video_img_rgb= cv2.cvtColor(video_img_bgr, cv2.COLOR_BGR2RGB)
     visualize(  [[img_labled_rgb1, label_map1], [img_labled_rgb2, label_map2]], 
                 [[ ' Example 1 - Labeled Image', 'Example 1 - Label Map'], ['Example 2 - Labeled Image ', 'Example 2 - Label Map ']],
-                'data/outputs/car_detection_labels.png', enable_show=True)
+                'data/outputs/car_detection_labels.png', enable_show=False)
 
 
+    print('--------- Test label() and filtering on continuous video frames ------ ')
+    car_detector.resetHeatmap() # image is not related to previous one
 
+    sample_dir='data/test_images/stream/'
+    images_loc = glob.glob(sample_dir+'*.jpg')
 
+    img_list =[]
+    title_list = []
+    for img_loc in images_loc:
+        img_bgr = cv2.imread(img_loc)
+        img_labled_bgr, label_map = car_detector.labelCars(img_bgr)
+        img_labled_rgb = cv2.cvtColor(img_labled_bgr, cv2.COLOR_BGR2RGB)
+
+        img_list.append([img_labled_rgb, label_map])
+        img_filename = img_loc[-8:]
+        print('Loading {}...'.format(img_filename))
+        title_list.append( [img_filename+' - Labeled Image ', img_filename+' - Label Map '] )
+
+        loc_to_save = sample_dir + 'labeled/labeled_' +img_filename
+        visualize(img_list, title_list, loc_to_save)
+        img_list =[]
+        title_list = []
     print('\n**************** All Tests Passed! *******************')
 
 if __name__ == "__main__": 

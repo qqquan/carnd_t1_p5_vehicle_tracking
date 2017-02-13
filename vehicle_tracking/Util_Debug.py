@@ -57,5 +57,5 @@ def visualize(rbg_img_matrix, title_matrix, save_to_file='', enable_show= False)
         plt.savefig(save_to_file)
 
     if enable_show:
-        plt.show()
+        plt.show( )
     plt.close()   

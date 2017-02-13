@@ -29,7 +29,8 @@ class FilteredHeatMap():
 
         return thresholded_heat
 
-
+    def reset(self):
+        self.heatmap_list=[]
 
 def main():
     ###########################
