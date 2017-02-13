@@ -6,18 +6,37 @@ logger.info('VehicleDetector module loaded')
 from TrainingDataset import TrainingDataset
 from FeatureExtractor import FeatureExtractor
 from Classifier import Classifier
+from HeatMap import FilteredHeatMap
 
 import cv2
 import os
 import pickle
 import numpy as np
+from scipy.ndimage.measurements import label
+
+
+# from Ryan Keenan
+def draw_labeled_bboxes(img, labels):
+    for car_number in range(1, labels[1]+1):
+        nonzero = (labels[0] == car_number).nonzero()
+
+        nonzeroy = np.array(nonzero[0])
+        nonzerox = np.array(nonzero[1])
+
+        bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
+
+        cv2.rectangle(img, bbox[0], bbox[1], (0,0,255),6)
+
+    return img
+
 
 class VehicleDetector():
 
 
 
     def __init__(self, car_path='data/vehicles/', noncar_path = 'data/non-vehicles/', enable_checkpoint=False , 
-                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=16 ):
+                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=16, 
+                filter_maxcount=5, heat_threhold=3, ):
 
         dataset = TrainingDataset(car_path, noncar_path)
         x_loc_list = dataset.getXLoc()
@@ -49,7 +68,7 @@ class VehicleDetector():
 
             self.vehicle_classifier = self.trainClassifier(x_loc_list, y)
 
-
+        self.filtered_heat = FilteredHeatMap(max_count=filter_maxcount, threshold=heat_threhold)
 
     def trainClassifier(self, x_loc_list, y):
 
@@ -75,7 +94,21 @@ class VehicleDetector():
 
         detected_windows = [win for (win, pred) in zip(windows, predictions) if (pred==1)]
 
-        return detected_windows
+        heatmap = np.zeros_like(img_bgr[:,:,0])
+
+        for a_win in detected_windows:
+
+            ul_pos = a_win[0]
+            br_pos = a_win[1]
+
+            ul_row, ul_col = ul_pos
+            br_row, br_col = br_pos
+
+            heatmap[ul_row:br_row, ul_col:br_col] +=1
+
+        self.filtered_heat.update(heatmap)
+
+        return detected_windows, heatmap
 
     def drawBoxes(self, img_bgr, windows):
 
@@ -93,6 +126,15 @@ class VehicleDetector():
 
         return bgr 
 
+    def labelCars(self, img_bgr):
+        self.scanImg(img_bgr)
+        labels = label( self.filtered_heat.getFilteredHeatmap() )
+
+        labled_img = draw_labeled_bboxes(np.copy(img_bgr), labels)
+
+        return labled_img, labels[0]  # return labeled image and label map
+
+
 
 def main():
 
@@ -105,32 +147,55 @@ def main():
 
 
 
-    car_detector = VehicleDetector(enable_checkpoint=True)
+    car_detector = VehicleDetector(enable_checkpoint=True, heat_threhold=15)
 
     print('\n\n######################### Video Frame Test ############################ \n')
     video_img_bgr = cv2.imread('data/test_images/test3.jpg')
 
-    detected_window = car_detector.scanImg(video_img_bgr)
-    print('Test frame 1: Number of detected windows: ', len(detected_window))
-    logger.info('Number of detected windows: {}.'.format(len(detected_window)) )
+    detected_windows, heatmap1 = car_detector.scanImg(video_img_bgr)
+    print('Test frame 1: Number of detected windows: ', len(detected_windows))
+    logger.info('Number of detected windows: {}.'.format(len(detected_windows)) )
 
-    img_bgr_marked = car_detector.drawBoxes(video_img_bgr, detected_window)
+    img_bgr_marked = car_detector.drawBoxes(video_img_bgr, detected_windows)
 
 
 
     video_img_bgr2 = cv2.imread('data/test_images/test6.jpg')
 
-    detected_window = car_detector.scanImg(video_img_bgr2)
-    print('Test frame 2: Number of detected windows: ', len(detected_window))
-    logger.info('Number of detected windows: {}.'.format(len(detected_window)) )
-    img_bgr_marked2 = car_detector.drawBoxes(video_img_bgr2, detected_window)
+    detected_windows, heatmap2 = car_detector.scanImg(video_img_bgr2)
+    print('Test frame 2: Number of detected windows: ', len(detected_windows))
+    logger.info('Number of detected windows: {}.'.format(len(detected_windows)) )
+    img_bgr_marked2 = car_detector.drawBoxes(video_img_bgr2, detected_windows)
 
 
 
     img_rgb_marked= cv2.cvtColor(img_bgr_marked, cv2.COLOR_BGR2RGB)
     img_rgb_marked2= cv2.cvtColor(img_bgr_marked2, cv2.COLOR_BGR2RGB)
     # video_img_rgb= cv2.cvtColor(video_img_bgr, cv2.COLOR_BGR2RGB)
-    visualize([[img_rgb_marked], [img_rgb_marked2]],[[ 'Marked Image - Example 1'], ['Marked Image - Example 2']], 'data/outputs/car_detection_windows.png', enable_show=True)
+    visualize(  [[img_rgb_marked, heatmap1], [img_rgb_marked2, heatmap2]], 
+                [[ 'Marked Image - Example 1', 'Heatmap - Example 1'], ['Marked Image - Example 2', 'Heatmap - Example 2']],
+                'data/outputs/car_detection_windows.png', enable_show=True)
+
+
+    print('--------- test label() ------ ')
+    video_img_bgr1 = cv2.imread('data/test_images/test3.jpg')
+
+    img_labled_bgr1, label_map1 = car_detector.labelCars(video_img_bgr1)
+
+    video_img_bgr2 = cv2.imread('data/test_images/test6.jpg')
+
+    img_labled_bgr2, label_map2 = car_detector.labelCars(video_img_bgr2)
+
+    img_labled_rgb1= cv2.cvtColor(img_labled_bgr1, cv2.COLOR_BGR2RGB)
+    img_labled_rgb2= cv2.cvtColor(img_labled_bgr2, cv2.COLOR_BGR2RGB)
+    # video_img_rgb= cv2.cvtColor(video_img_bgr, cv2.COLOR_BGR2RGB)
+    visualize(  [[img_labled_rgb1, label_map1], [img_labled_rgb2, label_map2]], 
+                [[ ' Example 1 - Labeled Image', 'Example 1 - Label Map'], ['Example 2 - Labeled Image ', 'Example 2 - Label Map ']],
+                'data/outputs/car_detection_labels.png', enable_show=True)
+
+
+
+
     print('\n**************** All Tests Passed! *******************')
 
 if __name__ == "__main__": 
