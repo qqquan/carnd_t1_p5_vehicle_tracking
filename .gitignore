@@ -14,7 +14,7 @@ __pycache__
 .fuse_hidden*
 README.html
 
-calibrated_camera.pickle
+*.pickle
 
 log_lanefinding.txt
 

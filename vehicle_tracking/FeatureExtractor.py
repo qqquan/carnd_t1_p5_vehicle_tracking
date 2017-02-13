@@ -45,8 +45,8 @@ class FeatureExtractor():
 
         color_feature_len = len(color_features[0])
         hog_feature_len = len(hog_features[0])
-        logger.debug('FeatureExtractor - Expected Color Feature Length: {}'.format(color_feature_len))
-        logger.debug('FeatureExtractor - Expected Hog Feature Length: {}'.format(hog_feature_len))
+        # logger.debug('FeatureExtractor - Expected Color Feature Length: {}'.format(color_feature_len))
+        # logger.debug('FeatureExtractor - Expected Hog Feature Length: {}'.format(hog_feature_len))
         for color_per_win, hog_per_win in zip(color_features, hog_features):
             feat = np.concatenate((color_per_win, hog_per_win))
             features.append(feat)
@@ -80,17 +80,19 @@ def main():
     print('Number of features: ', len(features))
     print('Feature shape for the first window: ', features[0].shape)
     assert(len(features) == len(windows))
-    training_feature_len = len(features)
+    training_feature_len = len(features[0])
+    print('traning feature size: ', training_feature_len)
 
     print('\n\n######################### Video Frame Test ############################ \n')
     video_img_brg = cv2.imread('data/test_images/test6.jpg')
 
     frame_features, frame_windows = feature_extractor.extractFeaturesAndWindows(video_img_brg)
+    print('number of features: ', len(frame_features))
+    print('video frame feature size: ', len(frame_features[0]))
 
-    frame_feature_len = len(frame_features[0])
     count = 0
     for feat in frame_features:
-        assert len(feat)==frame_feature_len, 'Idx: {}. feat len: {}, frame_feature_len: {}'.format(count, len(feat), frame_feature_len)
+        assert len(feat)==training_feature_len, 'Expect frame feature has the same size as training feature. Idx: {}. video frame feature len: {}, training feature length: {}'.format(count, len(feat), training_feature_len)
         count+=1
 
     print('\n**************** All Tests Passed! *******************')
