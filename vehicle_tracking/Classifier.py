@@ -52,13 +52,13 @@ def main():
 
 
 
+    debug_num = 100 
+    print('\n\n*********\nLimited number of images for testing: {}! \n*********'.format(2*debug_num))
 
     #####################################################
     # Classifier Training 
     #####################################################
     print('\n\n######################### Module Test on Classifier Training ############################ \n')
-    debug_num = 100 
-    print('Number of images for training: ', 2*debug_num)
     test_x_loc_list = x_loc_list[-debug_num:-1]  + x_loc_list[0:debug_num]
     test_y = np.concatenate((y[-debug_num:-1] ,y[0:debug_num]))
 
@@ -104,6 +104,7 @@ def main():
         X.extend(features)
 
 
+
     predicitons = vehicle_classifier.predict(X)
     pred_hit_num = np.count_nonzero(predicitons)
     print('Car Prediction hits = {}, misses = {}'.format(pred_hit_num, len(predicitons)-pred_hit_num))
@@ -125,14 +126,38 @@ def main():
         assert len(features) == 1
         X.extend(features)
 
+    print(' total features number: {}'.format(len(X)))
+    print(' type of feature vectors X: {}'.format(type(X)))
+    print(' type of a feature : {}'.format(type(X[0])))
+    print(' size of a feature : {}'.format( len(X[0]) ))
+    print(' shape of a feature : {}'.format( (X[0].shape) ))
 
     predicitons = vehicle_classifier.predict(X)
+    print(' type of predicitons : {}'.format(type(predicitons)))
+    print(' type of a prediciton : {}'.format(type(predicitons[0])))
     pred_hit_num = len(predicitons) -np.count_nonzero(predicitons)
     print('Non-car Prediction hits = {}, misses = {}'.format(pred_hit_num, len(predicitons)-pred_hit_num))
     print('Non-car Prediction Accuracy: ', pred_hit_num/len(predicitons) )
     assert pred_hit_num/len(predicitons) > 0.5
 
+    print('\n\n######################### Video Frame Test ############################ \n')
+    video_img_brg = cv2.imread('data/test_images/test6.jpg')
 
+    features, windows = feature_extractor.extractFeaturesAndWindows(video_img_brg)
+
+    print(' total features number: {}'.format(len(features)))
+    print(' type of feature vectors X: {}'.format(type(features)))
+    print(' size of a feature : {}'.format( len(features[0]) ))
+    print(' shape of a feature : {}'.format( (features[0].shape) ))
+
+    predictions = []
+    for feat in features:
+
+        pred = vehicle_classifier.predict(feat)
+        predictions.append(pred) 
+    print('Non-car Prediction hits = {}, misses = {}'.format(pred_hit_num, len(predicitons)-pred_hit_num))
+    print('Non-car Prediction Accuracy: ', pred_hit_num/len(predicitons) )
+    assert pred_hit_num/len(predicitons) > 0.5
     
     print('\n**************** All Tests Passed! *******************')
 

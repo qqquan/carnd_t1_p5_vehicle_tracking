@@ -51,6 +51,7 @@ class HogExtractor():
         hog2 = get_hog_features(ch2, self.orient, self.pix_per_cell, self.cell_per_block, feature_vec=False)
         hog3 = get_hog_features(ch3, self.orient, self.pix_per_cell, self.cell_per_block, feature_vec=False)
 
+        past_feat_len = 0
         for win in windows:
             ul_pos = win[0] # upper left position
             br_pos = win[1] # bottom right position
@@ -67,11 +68,13 @@ class HogExtractor():
             if br_col % self.pix_per_cell:
                 logger.error( 'The pixel position does not map to any hog matrix element. br_col = {}, pix_per_cell = {}.'.format(br_col, self.pix_per_cell) )
 
+
+
             # convert from pixel positions to block positions
             blk_pos_ul_row = ul_row//self.pix_per_cell
             blk_pos_ul_col = ul_col//self.pix_per_cell
-            blk_pos_br_row = br_row//self.pix_per_cell
-            blk_pos_br_col = br_col//self.pix_per_cell
+            blk_pos_br_row = br_row//self.pix_per_cell-1 # the end block position is one less than the cell number!!
+            blk_pos_br_col = br_col//self.pix_per_cell-1
 
 
             feat1 = hog1[blk_pos_ul_row:blk_pos_br_row, blk_pos_ul_col:blk_pos_br_col ].reshape(-1)
@@ -82,9 +85,30 @@ class HogExtractor():
 
             features.append(feat)
 
+            if past_feat_len ==0:
+                past_feat_len = len(feat)
+            else:
+                if (len(feat) != past_feat_len):
+                    logger.error('HogExtractor - Expected hog feature len: {}, Actual len: {}. \n \
+                                 feat1 size: {}, feat2 size: {}, feat3 size: {}'\
+                                 .format(past_feat_len, len(feat) , len(feat1) , len(feat2), len(feat3)   )
+                                 )
 
-            logger.debug('HogExtractor - Window Position - x - {}:{}.   y - {}:{} '.format(ul_col, br_col, ul_row, br_row))
-            logger.debug('HogExtractor - HOG Block Position - x - {}:{}.   y - {}:{} '.format(blk_pos_ul_col, blk_pos_br_col, blk_pos_ul_row, blk_pos_br_row))
+                    logger.error('HogExtractor - Hog1 shape {}  '.format(hog1.shape))
+                    logger.error('HogExtractor - Hog2 shape {}  '.format(hog2.shape))
+                    logger.error('HogExtractor - Hog3 shape {}  '.format(hog3.shape))
+                    logger.error('blk_pos_br_row - blk_pos_ul_row = Expected 7 of total blocks per a window, Actual: {} '.format(blk_pos_br_row - blk_pos_ul_row ))
+                    logger.error('blk_pos_br_row: {}  '.format(blk_pos_br_row))
+                    logger.error('blk_pos_ul_row: {}  '.format(blk_pos_ul_row))
+                    logger.error('blk_pos_br_col - blk_pos_ul_col = Expected 7 of total blocks per a window, Actual: {} '.format(blk_pos_br_col - blk_pos_ul_col ))
+                    logger.error('blk_pos_br_col: {}  '.format(blk_pos_br_col))
+                    logger.error('blk_pos_ul_col: {}  '.format(blk_pos_ul_col))
+
+                    logger.error('HogExtractor - Window Positions - Upper: {}. Lower: {}  '.format(ul_pos, br_pos))
+                    past_feat_len=len(feat)
+
+            # logger.debug('HogExtractor - Window Position - x - {}:{}.   y - {}:{} '.format(ul_col, br_col, ul_row, br_row))
+            # logger.debug('HogExtractor - HOG Block Position - x - {}:{}.   y - {}:{} '.format(blk_pos_ul_col, blk_pos_br_col, blk_pos_ul_col, blk_pos_br_row))
 
         return features
 
@@ -101,7 +125,7 @@ def main():
     # Training Images
     #####################################################
     print('\n######################### Training Image Test ############################\n')
-    logger.info('######################### Training Image Test')
+    logger.info(' HogExtractor Training Image Test')
     training_img_brg = cv2.imread('data/vehicles/GTI_Right/image0025.png')
 
     img = training_img_brg
@@ -127,16 +151,23 @@ def main():
     num_hog_channels = 3 # assuming all color channels are fed to hog()
     assert img.shape[0]==img.shape[1], "training image is assumed a square shape"
     feature_num = blk_pos_per_window*blk_pos_per_window*cell_per_block*cell_per_block*orient *num_hog_channels
+
+    print('window_side_len: ', window_side_len)
+    print('blk_pos_per_window: ', blk_pos_per_window)
+    print('cell_per_block: ', cell_per_block)
+    print('orient: ', orient)
+    print('num_hog_channels: ', num_hog_channels)
+    print('Expected feature size: ', feature_num)
     assert feat0_size==(feature_num), 'Expected feature number: {}'.format(feature_num)
 
-
+    training_feature_num = feat0_size
 
 
     #####################################################
     # Video Frame
     #####################################################
     print('\n\n######################### Video Frame Test ############################ \n')
-    logger.info('######################### Video Frame Test')
+    logger.info(' HogExtractor Video Frame Test')
     video_img_brg = cv2.imread('data/test_images/test6.jpg')
     img = video_img_brg
     print('Video frame shape: ', img.shape)
@@ -147,7 +178,7 @@ def main():
     window_size = 64
     w1 = ((0,0),(window_size,window_size))
     w2 = ((400,600),(400+window_size, 600+window_size))
-    w3 = ((504,0),(504+window_size, 0+window_size*2))
+    w3 = ((504,0),(504+window_size, 0+window_size))
     windows = [w1, w2, w3]
 
     features = hog_extractor.getFeatures(img, windows)
@@ -163,19 +194,22 @@ def main():
     print('Feature shape for the 2nd window: ', feat1_shape)
     assert feat1_shape[0]>0
 
+    assert len(features[0])==len(features[1]), 'hog result is expected to be the same between all windows. len(feature[0]) = {},  len(features[1]: {}.'.format(len(features[0]) , len(features[1]) ) 
+    frame_feature_size = len(features[0]) 
+    assert frame_feature_size==training_feature_num, 'hog result is expected to be the same between training and video frame. frame_feature_size: {}, training_feature_num: {}'.format(frame_feature_size, training_feature_num)
 
 
     #####################################################
     # Hog() Test 
     #####################################################
     print('\n######################### Hog() Test ############################\n')
-    logger.info('######################### Hog() Test ')
+    logger.info(' HogExtractor Hog() Test ')
     car_brg = cv2.imread('data/vehicles/GTI_Right/image0177.png')
     noncar_brg = cv2.imread('data/non-vehicles/GTI/image155.png')
 
     car = cv2.cvtColor(car_brg, cv2.COLOR_BGR2RGB)
     noncar = cv2.cvtColor(noncar_brg, cv2.COLOR_BGR2RGB)
-    visualize([[car, noncar]], [['Car image', 'Non-car Image']])
+    visualize([[car, noncar]], [['Car image', 'Non-car Image']], 'data/outputs/car_not_car.png' )
 
     car = cv2.cvtColor(car_brg, cv2.COLOR_BGR2YCrCb)
     noncar = cv2.cvtColor(noncar_brg, cv2.COLOR_BGR2YCrCb)
@@ -229,7 +263,7 @@ def main():
     title_list.append(['Car Ch3', 'Car Ch3 Hog', 'Non-car Ch3', 'Non-car Ch3 Hog'])
 
     
-    visualize(img_list, title_list)
+    visualize(img_list, title_list, 'data/outputs/HOG_example.jpg')
     
 
 
@@ -238,7 +272,7 @@ def main():
 
 
 
-def visualize(rbg_img_matrix, title_matrix, save_to_file=''):
+def visualize(rbg_img_matrix, title_matrix, save_to_file='', enable_show= False):
     """show images in a grid layout
     
     Args:
@@ -286,7 +320,9 @@ def visualize(rbg_img_matrix, title_matrix, save_to_file=''):
     # plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
     if '' != save_to_file: 
         plt.savefig(save_to_file)
-    plt.show()
+
+    if enable_show:
+        plt.show()
     plt.close()   
 
 

@@ -27,7 +27,7 @@ def color_hist(img, nbins=32):
 class ColorExtractor():
 
 
-    def __init__(self, spatial_shape=(16, 16), hist_bins=32, orient = 9):
+    def __init__(self, spatial_shape=(16, 16), hist_bins=32):
         self.spatial_shape = spatial_shape
         self.hist_bins = hist_bins
 
