@@ -24,7 +24,7 @@ class VehicleDetector():
 
     def __init__(self, car_path='data/vehicles/', noncar_path = 'data/non-vehicles/', enable_checkpoint=False , 
                 orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=16, 
-                filter_maxcount=5, heat_threhold=3, ):
+                filter_maxcount=5, heat_threhold=12, ):
 
         dataset = TrainingDataset(car_path, noncar_path)
         x_loc_list = dataset.getXLoc()
@@ -122,6 +122,10 @@ class VehicleDetector():
         labled_img = self.draw_labeled_bboxes(np.copy(img_bgr), labels)
 
         return labled_img, labels[0]  # return labeled image and label map
+
+    def hightlightCars(self, img_bgr):
+        return self.labelCars( img_bgr)
+
 
     def resetHeatmap(self):
         self.filtered_heat.reset()
@@ -222,7 +226,7 @@ def main():
     title_list = []
     for img_loc in images_loc:
         img_bgr = cv2.imread(img_loc)
-        img_labled_bgr, label_map = car_detector.labelCars(img_bgr)
+        img_labled_bgr, label_map = car_detector.hightlightCars(img_bgr)
         img_labled_rgb = cv2.cvtColor(img_labled_bgr, cv2.COLOR_BGR2RGB)
 
         img_list.append([img_labled_rgb, label_map])
