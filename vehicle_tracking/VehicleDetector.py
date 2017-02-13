@@ -17,7 +17,7 @@ class VehicleDetector():
 
 
     def __init__(self, car_path='data/vehicles/', noncar_path = 'data/non-vehicles/', enable_checkpoint=False , 
-                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=32 ):
+                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=16 ):
 
         dataset = TrainingDataset(car_path, noncar_path)
         x_loc_list = dataset.getXLoc()
@@ -39,8 +39,8 @@ class VehicleDetector():
                 with open('veh_classifier_checkpoint.pickle', 'rb') as handle:
                     self.vehicle_classifier = pickle.load(handle)
             else: 
-                self.vehicle_classifier = self.trainClassifier(x_loc_list, y)
                 logger.debug('VehicleDetector: initialize a new checkpoint.')
+                self.vehicle_classifier = self.trainClassifier(x_loc_list, y)
 
                 with open('veh_classifier_checkpoint.pickle', 'wb') as handle:
                     pickle.dump(self.vehicle_classifier, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -89,7 +89,7 @@ class VehicleDetector():
             br_y, br_x = br_pos
             # logger.debug('window position: {}'.format(a_win))
             # cv2.rectangle(bgr, a_win[0], a_win[1],  (0,0,255))
-            cv2.rectangle(bgr, (ul_x, ul_y), (br_x, br_y),  (255,0,0), thickness=3)
+            cv2.rectangle(bgr, (ul_x, ul_y), (br_x, br_y),  (255,0,0), thickness=1)
 
         return bgr 
 
@@ -108,20 +108,21 @@ def main():
     car_detector = VehicleDetector(enable_checkpoint=True)
 
     print('\n\n######################### Video Frame Test ############################ \n')
-    video_img_bgr = cv2.imread('data/test_images/test6.jpg')
+    video_img_bgr = cv2.imread('data/test_images/test3.jpg')
 
     detected_window = car_detector.scanImg(video_img_bgr)
-    print('Number of detected windows: ', len(detected_window))
+    print('Test frame 1: Number of detected windows: ', len(detected_window))
+    logger.info('Number of detected windows: {}.'.format(len(detected_window)) )
 
     img_bgr_marked = car_detector.drawBoxes(video_img_bgr, detected_window)
 
 
 
-    video_img_bgr2 = cv2.imread('data/test_images/test3.jpg')
+    video_img_bgr2 = cv2.imread('data/test_images/test6.jpg')
 
     detected_window = car_detector.scanImg(video_img_bgr2)
-    print('Number of detected windows: ', len(detected_window))
-
+    print('Test frame 2: Number of detected windows: ', len(detected_window))
+    logger.info('Number of detected windows: {}.'.format(len(detected_window)) )
     img_bgr_marked2 = car_detector.drawBoxes(video_img_bgr2, detected_window)
 
 
@@ -129,7 +130,7 @@ def main():
     img_rgb_marked= cv2.cvtColor(img_bgr_marked, cv2.COLOR_BGR2RGB)
     img_rgb_marked2= cv2.cvtColor(img_bgr_marked2, cv2.COLOR_BGR2RGB)
     # video_img_rgb= cv2.cvtColor(video_img_bgr, cv2.COLOR_BGR2RGB)
-    visualize([[img_rgb_marked2], [img_rgb_marked]],[[ 'Marked Image - Example 1'], ['Marked Image - Example 2']], enable_show=True)
+    visualize([[img_rgb_marked], [img_rgb_marked2]],[[ 'Marked Image - Example 1'], ['Marked Image - Example 2']], 'data/outputs/car_detection_windows.png', enable_show=True)
     print('\n**************** All Tests Passed! *******************')
 
 if __name__ == "__main__": 
