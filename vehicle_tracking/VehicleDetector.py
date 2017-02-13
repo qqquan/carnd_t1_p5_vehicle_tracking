@@ -10,7 +10,7 @@ from Classifier import Classifier
 import cv2
 import os
 import pickle
-
+import numpy as np
 
 class VehicleDetector():
 
@@ -70,25 +70,37 @@ class VehicleDetector():
         
 
         features, windows = self.feature_extractor.extractFeaturesAndWindows(img_bgr)
-        
-        logger.debug('VehicleDetector - scanImg() - total window number: {}'.format(len(windows)))
-        logger.debug('VehicleDetector - scanImg() - total features number: {}'.format(len(features)))
-        logger.debug('VehicleDetector - scanImg() - type of a feature : {}'.format(type(features[0])))
-        logger.debug('VehicleDetector - scanImg() - size of a feature : {}'.format( len(features[0]) ))
-        logger.debug('VehicleDetector - scanImg() - shape of a feature : {}'.format( (features[0].shape) ))
 
         predictions = self.vehicle_classifier.predict(features)
 
         detected_windows = [win for (win, pred) in zip(windows, predictions) if (pred==1)]
 
-        logger.debug('total detected number: {}'.format(len(detected_windows)))
-
         return detected_windows
+
+    def drawBoxes(self, img_bgr, windows):
+
+        bgr = np.copy(img_bgr)
+        for a_win in windows:
+
+            ul_pos = a_win[0]
+            br_pos = a_win[1]
+
+            ul_y, ul_x = ul_pos
+            br_y, br_x = br_pos
+            # logger.debug('window position: {}'.format(a_win))
+            # cv2.rectangle(bgr, a_win[0], a_win[1],  (0,0,255))
+            cv2.rectangle(bgr, (ul_x, ul_y), (br_x, br_y),  (255,0,0), thickness=3)
+
+        return bgr 
 
 
 def main():
+
     logging.basicConfig(filename='debug.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     logger.info('######################### VehicleDetector - Module Test ############################')
+
+    from Util_Debug import visualize
+
     print('\n######################### Module Test ############################\n')
 
 
@@ -96,11 +108,28 @@ def main():
     car_detector = VehicleDetector(enable_checkpoint=True)
 
     print('\n\n######################### Video Frame Test ############################ \n')
-    video_img_brg = cv2.imread('data/test_images/test6.jpg')
+    video_img_bgr = cv2.imread('data/test_images/test6.jpg')
 
-    detected_window = car_detector.scanImg(video_img_brg)
+    detected_window = car_detector.scanImg(video_img_bgr)
     print('Number of detected windows: ', len(detected_window))
 
+    img_bgr_marked = car_detector.drawBoxes(video_img_bgr, detected_window)
+
+
+
+    video_img_bgr2 = cv2.imread('data/test_images/test3.jpg')
+
+    detected_window = car_detector.scanImg(video_img_bgr2)
+    print('Number of detected windows: ', len(detected_window))
+
+    img_bgr_marked2 = car_detector.drawBoxes(video_img_bgr2, detected_window)
+
+
+
+    img_rgb_marked= cv2.cvtColor(img_bgr_marked, cv2.COLOR_BGR2RGB)
+    img_rgb_marked2= cv2.cvtColor(img_bgr_marked2, cv2.COLOR_BGR2RGB)
+    # video_img_rgb= cv2.cvtColor(video_img_bgr, cv2.COLOR_BGR2RGB)
+    visualize([[img_rgb_marked2], [img_rgb_marked]],[[ 'Marked Image - Example 1'], ['Marked Image - Example 2']], enable_show=True)
     print('\n**************** All Tests Passed! *******************')
 
 if __name__ == "__main__": 
