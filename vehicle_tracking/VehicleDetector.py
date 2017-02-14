@@ -124,7 +124,9 @@ class VehicleDetector():
         return labled_img, labels[0]  # return labeled image and label map
 
     def hightlightCars(self, img_bgr):
-        return self.labelCars( img_bgr)
+
+        img_highted, _ = self.labelCars( img_bgr)
+        return img_highted
 
 
     def resetHeatmap(self):
@@ -132,17 +134,25 @@ class VehicleDetector():
 
     # from Ryan Keenan
     def draw_labeled_bboxes(self, img, labels):
+
+        new_box_list = []
         for car_number in range(1, labels[1]+1):
             nonzero = (labels[0] == car_number).nonzero()
 
             nonzeroy = np.array(nonzero[0])
             nonzerox = np.array(nonzero[1])
 
-            bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
-            self.car_box_list.update(car_number-1, bbox)
+            # bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
+            bbox = ( (np.min(nonzeroy), np.min(nonzerox)), (np.max(nonzeroy), np.max(nonzerox)) ) # (row, col)
 
+            new_box_list.append(np.array(bbox))
 
+        self.car_box_list.update(new_box_list)
         car_boxes = self.car_box_list.getBoxList()
+
+        logger.debug('VehicleDetector - draw_labeled_bboxes(): number of cars detected: {}'.format(len(car_boxes)))
+        logger.debug('VehicleDetector - draw_labeled_bboxes(): detected car positions: {}'.format(new_box_list))
+        logger.debug('VehicleDetector - draw_labeled_bboxes(): filtered car positions: {}'.format(car_boxes))
 
         for box in car_boxes:
             ul_pos = box[0]
@@ -154,7 +164,12 @@ class VehicleDetector():
             br_row = int(br_pos[0])
             br_col = int(br_pos[1])
 
-            cv2.rectangle(img, (ul_row, ul_col), (br_row, br_col), (255,0,0),6)
+            ul_x, ul_y = ul_col, ul_row
+            br_x, br_y = br_col, br_row
+
+            logger.debug('VehicleDetector - draw_labeled_bboxes(): drawn car positions: {}'.format(( (ul_x, ul_y), (br_x, br_y))))
+
+            cv2.rectangle(img, (ul_x, ul_y), (br_x, br_y), (255,0,0),6)
 
         return img
 def main():
@@ -226,12 +241,13 @@ def main():
     title_list = []
     for img_loc in images_loc:
         img_bgr = cv2.imread(img_loc)
-        img_labled_bgr, label_map = car_detector.hightlightCars(img_bgr)
+        img_labled_bgr, label_map = car_detector.labelCars(img_bgr)
         img_labled_rgb = cv2.cvtColor(img_labled_bgr, cv2.COLOR_BGR2RGB)
 
         img_list.append([img_labled_rgb, label_map])
         img_filename = img_loc[-8:]
         print('Loading {}...'.format(img_filename))
+        logger.info('Tested {}.'.format(img_filename))
         title_list.append( [img_filename+' - Labeled Image ', img_filename+' - Label Map '] )
 
         loc_to_save = sample_dir + 'labeled/labeled_' +img_filename
