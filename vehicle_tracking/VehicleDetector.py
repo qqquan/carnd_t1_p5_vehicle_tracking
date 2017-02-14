@@ -65,7 +65,7 @@ class VehicleDetector():
         for x_loc in x_loc_list:
             img_bgr = cv2.imread(x_loc)
 
-            features,_ = self.feature_extractor.extractFeaturesAndWindows(img_bgr)
+            features,_ = self.feature_extractor.extractFeaturesAndWindows(img_bgr, win_scale=1)
 
             assert len(features) == 1
             X.extend(features) 
@@ -77,7 +77,8 @@ class VehicleDetector():
     def scanImg(self, img_bgr):
         
 
-        features, windows = self.feature_extractor.extractFeaturesAndWindows(img_bgr)
+            
+        features, windows = self.feature_extractor.extractFeaturesAndWindows(np.copy(img_bgr), win_scale=1.5)
 
         predictions = self.vehicle_classifier.predict(features)
 
@@ -111,7 +112,7 @@ class VehicleDetector():
             br_y, br_x = br_pos
             # logger.debug('window position: {}'.format(a_win))
             # cv2.rectangle(bgr, a_win[0], a_win[1],  (0,0,255))
-            cv2.rectangle(bgr, (ul_x, ul_y), (br_x, br_y),  (255,0,0), thickness=1)
+            cv2.rectangle(bgr, (int(ul_x), int(ul_y)), (int(br_x), int(br_y)),  (255,0,0), thickness=1)
 
         return bgr 
 
@@ -150,9 +151,9 @@ class VehicleDetector():
         self.car_box_list.update(new_box_list)
         car_boxes = self.car_box_list.getBoxList()
 
-        logger.debug('VehicleDetector - draw_labeled_bboxes(): number of cars detected: {}'.format(len(car_boxes)))
-        logger.debug('VehicleDetector - draw_labeled_bboxes(): detected car positions: {}'.format(new_box_list))
-        logger.debug('VehicleDetector - draw_labeled_bboxes(): filtered car positions: {}'.format(car_boxes))
+        # logger.debug('VehicleDetector - draw_labeled_bboxes(): number of cars detected: {}'.format(len(car_boxes)))
+        # logger.debug('VehicleDetector - draw_labeled_bboxes(): detected car positions: {}'.format(new_box_list))
+        # logger.debug('VehicleDetector - draw_labeled_bboxes(): filtered car positions: {}'.format(car_boxes))
 
         for box in car_boxes:
             ul_pos = box[0]
@@ -167,7 +168,7 @@ class VehicleDetector():
             ul_x, ul_y = ul_col, ul_row
             br_x, br_y = br_col, br_row
 
-            logger.debug('VehicleDetector - draw_labeled_bboxes(): drawn car positions: {}'.format(( (ul_x, ul_y), (br_x, br_y))))
+            # logger.debug('VehicleDetector - draw_labeled_bboxes(): drawn car positions: {}'.format(( (ul_x, ul_y), (br_x, br_y))))
 
             cv2.rectangle(img, (ul_x, ul_y), (br_x, br_y), (255,0,0),6)
 
@@ -211,7 +212,7 @@ def main():
     # video_img_rgb= cv2.cvtColor(video_img_bgr, cv2.COLOR_BGR2RGB)
     visualize(  [[img_rgb_marked, heatmap1], [img_rgb_marked2, heatmap2]], 
                 [[ 'Marked Image - Example 1', 'Heatmap - Example 1'], ['Marked Image - Example 2', 'Heatmap - Example 2']],
-                'data/outputs/car_detection_windows.png', enable_show=False)
+                'data/outputs/car_detection_windows.png', enable_show=True)
 
 
     print('--------- Test label() ------ ')
@@ -228,7 +229,7 @@ def main():
     # video_img_rgb= cv2.cvtColor(video_img_bgr, cv2.COLOR_BGR2RGB)
     visualize(  [[img_labled_rgb1, label_map1], [img_labled_rgb2, label_map2]], 
                 [[ ' Example 1 - Labeled Image', 'Example 1 - Label Map'], ['Example 2 - Labeled Image ', 'Example 2 - Label Map ']],
-                'data/outputs/car_detection_labels.png', enable_show=False)
+                'data/outputs/car_detection_labels.png', enable_show=True)
 
 
     print('--------- Test label() and filtering on continuous video frames ------ ')

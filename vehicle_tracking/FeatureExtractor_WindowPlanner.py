@@ -67,7 +67,7 @@ class WindowPlanner():
         self.pix_step = pix_per_cell  # pixels of a block step
 
     # window size has to equal to training_image_shape
-    def getHogWindows(self, img, region_of_interest_col_ratio=(0.55, 1) ):
+    def getHogWindows(self, img, region_of_interest_row_ratio=(0.55, 1) ):
         """eatch window corner is a hog cell corner. as Hog block moves by cell
         
         Args:
@@ -89,7 +89,7 @@ class WindowPlanner():
 
 
             #  sliding step has to be divisible by pix of a block step or pix_per_cell
-            ROI_min, RIO_max = region_of_interest_col_ratio
+            ROI_min, RIO_max = region_of_interest_row_ratio
 
             row_start =  int(( ROI_min *img.shape[0] )//self.pix_step * self.pix_step) # make sure the starting position is at a hog block edge
             row_stop = int(RIO_max*img.shape[0])
@@ -311,7 +311,7 @@ def main():
 
     ROI_min = 0.6
     ROI_max = 0.9 
-    region_of_interest_col_ratio = (ROI_min, ROI_max)
+    region_of_interest_row_ratio = (ROI_min, ROI_max)
 
 
     
@@ -324,7 +324,7 @@ def main():
     win_shape = training_image_shape
 
     print('pix_per_cell = ', pix_per_cell)
-    print('region_of_interest_col_ratio = ', region_of_interest_col_ratio)
+    print('region_of_interest_row_ratio = ', region_of_interest_row_ratio)
     print('training_image_shape = ', training_image_shape)
     print('img_col = ', img_col)
     print('img_row = ', img_row)
@@ -332,7 +332,7 @@ def main():
     print('col_step = ', col_step)
     print('win_shape = ', win_shape)
 
-    windows = windows_planner.getHogWindows(video_img_brg, region_of_interest_col_ratio)
+    windows = windows_planner.getHogWindows(video_img_brg, region_of_interest_row_ratio)
 
     # assert(len(windows) == 1)
 

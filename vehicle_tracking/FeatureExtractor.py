@@ -8,6 +8,7 @@ from FeatureExtractor_Color import ColorExtractor
 from FeatureExtractor_WindowPlanner import WindowPlanner
 
 import numpy as np
+import cv2
 
 class FeatureExtractor():
 
@@ -17,8 +18,9 @@ class FeatureExtractor():
         self.hog_extractor = HogExtractor(orient=orient, pix_per_cell = pix_per_cell, cell_per_block=cell_per_block)
         self.color_extractor = ColorExtractor(spatial_shape=spatial_shape, hist_bins=hist_bins)
 
+        self.training_image_shape=training_image_shape
 
-    def extractFeaturesAndWindows(self, img):
+    def extractFeaturesAndWindows(self, img, win_scale=1, region_of_interest_row_ratio=(0.55, 1)):
         """Extract feature vectors and corresponding inspected windows for an image.
         
         Args:
@@ -34,31 +36,34 @@ class FeatureExtractor():
             # jpg image ranges 0~255. png file does not need this because its range is 0~1
             img = img.astype(np.float32)/255
 
-        windows = self.window_planner.getHogWindows(img) # windows of upper-left and bottom-right pixel positions of hog blocks
-        # logger.debug('FeatureExtractor - window_planner.getHogWindows  - number of windows: {}'.format(len(windows)))
 
-        color_features = self.color_extractor.getFeatures(img, windows)
+        img_scaled = cv2.resize(img, ( int(img.shape[1]/win_scale), int(img.shape[0]/win_scale) ))
 
-        hog_features = self.hog_extractor.getFeatures(img, windows)
+        logger.debug('FeatureExtractor -  scale = {}'.format(win_scale))
+        logger.debug('FeatureExtractor -  new shape = {}, old shape ={}'.format(img_scaled.shape, img.shape))
 
-        features=[]
+        windows = self.window_planner.getHogWindows(img_scaled, region_of_interest_row_ratio ) # windows of upper-left and bottom-right pixel positions of hog blocks
+        scaled_windows = np.multiply(windows, win_scale)
+
+
+        color_features = self.color_extractor.getFeatures(img_scaled, windows)
+
+        hog_features = self.hog_extractor.getFeatures(img_scaled, windows)
+
+
 
         color_feature_len = len(color_features[0])
         hog_feature_len = len(hog_features[0])
-        # logger.debug('FeatureExtractor - Expected Color Feature Length: {}'.format(color_feature_len))
-        # logger.debug('FeatureExtractor - Expected Hog Feature Length: {}'.format(hog_feature_len))
+
+        features = []
         for color_per_win, hog_per_win in zip(color_features, hog_features):
             feat = np.concatenate((color_per_win, hog_per_win))
             features.append(feat)
 
-            # if len(color_per_win) != color_feature_len:
-            #     logger.error('FeatureExtractor -Expected color feature len: {}, Actual len: {}'.format(color_feature_len, len(color_per_win) ))
-            # if len(hog_per_win) != hog_feature_len:
-            #     logger.error('FeatureExtractor - Expected hog feature len: {}, Actual len: {}'.format(hog_feature_len, len(hog_per_win) ))
 
         #TODO: Make a new window list if image is scaled
 
-        return features, windows
+        return features, scaled_windows
 
 def main():
     logging.basicConfig(filename='debug.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -70,7 +75,7 @@ def main():
     # Training Images
     #####################################################
     logger.info(' ####  FeatureExtractor - Training Image Test  ###')
-
+    logger.info('Training image Test ---------- \n')
     training_img_brg = cv2.imread('data/vehicles/GTI_Right/image0025.png')
 
     feature_extractor = FeatureExtractor(training_image_shape=training_img_brg.shape[:2], pix_per_cell = 8, cell_per_block = 2)
@@ -84,9 +89,10 @@ def main():
     print('traning feature size: ', training_feature_len)
 
     print('\n\n######################### Video Frame Test ############################ \n')
+    logger.info('Video Frame Test -------------- \n')
     video_img_brg = cv2.imread('data/test_images/test6.jpg')
 
-    frame_features, frame_windows = feature_extractor.extractFeaturesAndWindows(video_img_brg)
+    frame_features, frame_windows = feature_extractor.extractFeaturesAndWindows(video_img_brg, win_scale=1.5)
     print('number of features: ', len(frame_features))
     print('video frame feature size: ', len(frame_features[0]))
 
