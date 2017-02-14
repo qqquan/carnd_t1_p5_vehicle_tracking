@@ -31,22 +31,22 @@ def doOverlap(np_box1, np_box2):
 
     if b1_br_x < b2_ul_x:
         #box1 is on the left of box2
-        logger.debug('box1 is on the left of box2. b1_br_x={}, b2_ul_x={}'.format(b1_br_x, b2_ul_x) )
+        # logger.debug('doOverlap : box1 is on the left of box2. b1_br_x={}, b2_ul_x={}'.format(b1_br_x, b2_ul_x) )
         is_overlapping_detected = False
     elif b1_ul_x>b2_br_x:
         #box1 is on right
-        logger.debug('box1 is on right')
+        # logger.debug('doOverlap: box1 is on right')
         is_overlapping_detected = False
     elif b1_br_y < b2_ul_y:
         #box1 is over box2
-        logger.debug('box1 is over box2')
+        # logger.debug('doOverlap : box1 is over box2')
         is_overlapping_detected = False
     elif b1_ul_y > b2_br_y:
-        logger.debug('box1 is under box2')
+        # logger.debug('doOverlap : box1 is under box2')
         #box1 is under box2
         is_overlapping_detected = False
     else:
-        logger.debug('overlapped ')
+        # logger.debug('overlapped ')
         is_overlapping_detected = True
 
 
@@ -64,8 +64,7 @@ def isNewBoxValid(newbox, past_box_list):
 
 class CarBoxList():
   
-    def __init__(self, max_count=5, noise_threshold=2):
-        # noise_threshold: if a car has more than noise_threshold of boxes, then it is considered a valid car 
+    def __init__(self, max_count=5):
 
         self.MAXCOUNT=max_count
         self.car_list = []

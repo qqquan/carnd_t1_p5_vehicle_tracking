@@ -31,7 +31,8 @@ class VehicleDetector():
         y = dataset.getY()
 
         example_img = cv2.imread(x_loc_list[0]) 
-        self.feature_extractor = FeatureExtractor(  training_image_shape=example_img.shape[:2], 
+        self.training_image_shape = example_img.shape[:2]
+        self.feature_extractor = FeatureExtractor(  training_image_shape=self.training_image_shape, 
                                                     orient=orient, 
                                                     pix_per_cell=pix_per_cell,
                                                     cell_per_block=cell_per_block,
@@ -77,14 +78,13 @@ class VehicleDetector():
     def scanImg(self, img_bgr):
         
 
-            
-        features, windows = self.feature_extractor.extractFeaturesAndWindows(np.copy(img_bgr), win_scale=1.5)
+        heatmap = np.zeros_like(img_bgr[:,:,0])
+        features, windows = self.feature_extractor.extractFeaturesAndWindows(np.copy(img_bgr), win_scale=1, region_of_interest_row_ratio=(0.52, 1.0))
+
 
         predictions = self.vehicle_classifier.predict(features)
 
         detected_windows = [win for (win, pred) in zip(windows, predictions) if (pred==1)]
-
-        heatmap = np.zeros_like(img_bgr[:,:,0])
 
         for a_win in detected_windows:
 

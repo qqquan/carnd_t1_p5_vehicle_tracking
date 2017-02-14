@@ -51,7 +51,6 @@ class FeatureExtractor():
         hog_features = self.hog_extractor.getFeatures(img_scaled, windows)
 
 
-
         color_feature_len = len(color_features[0])
         hog_feature_len = len(hog_features[0])
 

@@ -19,9 +19,9 @@ def process_image(img):
 
 def main():
 
-    test_output =   'data/test.mp4' # 'data/project.mp4' #
+    test_output =   'data/project.mp4' # 'data/project.mp4' #
 
-    clip = VideoFileClip('data/test_video.mp4')  #test_video.mp4
+    clip = VideoFileClip('data/project_video.mp4')  #test_video.mp4   project_video.mp4
 
     test_clip = clip.fl_image(process_image)
 

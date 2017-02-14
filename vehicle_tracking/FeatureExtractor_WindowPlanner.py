@@ -77,6 +77,7 @@ class WindowPlanner():
             LIST:   A list of window position in tuple. 
                     Each position contains two tuples: upper left corner of (row, column) and bottom right corner of (row, column))
         """
+        logger.debug('WindowPlanner - region_of_interest_row_ratio ={}'.format(region_of_interest_row_ratio))
         windows = []
 
         training_shape = self.training_image_shape
