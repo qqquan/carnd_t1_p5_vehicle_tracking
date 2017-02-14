@@ -100,8 +100,21 @@ class CarBoxList():
                     self.reset(new_box_list)
                     #no need to look at the rest of new box list
                     break
- 
-             
+
+            #check if there is redundant tracking
+            # todo: design a better way than brutal-forcing:
+            car_list = self.getBoxList()
+            num = len(car_list)
+            if num==2:
+                if doOverlap(car_list[0], car_list[1]) == True:
+                    self.car_list.pop(0)
+            elif num==3:
+                if doOverlap(car_list[0], car_list[1]) == True:
+                    self.car_list.pop(0)                    
+                elif doOverlap(car_list[0], car_list[2]) == True:
+                    self.car_list.pop(0)          
+                elif doOverlap(car_list[1], car_list[2]) == True:
+                    self.car_list.pop(1)                
         else:
             # if no car is found, and car_list is empty, do nothing
             pass
@@ -173,7 +186,7 @@ def main():
 
     carbox_list = CarBoxList()
     box1 = ((0, 0), (10,10))
-    box2 = ((1, 1), (11,11))
+    box2 = ((111, 111), (222,222))
     np_box1= np.array(box1)
     np_box2= np.array(box2)
     np_box_list = [np_box1, np_box2] 
