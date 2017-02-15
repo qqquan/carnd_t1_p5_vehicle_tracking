@@ -23,8 +23,13 @@ class VehicleDetector():
 
 
     def __init__(self, car_path='data/vehicles/', noncar_path = 'data/non-vehicles/', enable_checkpoint=False , 
-                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=16, 
-                filter_maxcount=5, heat_threhold=12, ):
+                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(32, 32), hist_bins=32, 
+                filter_maxcount=5, 
+                heat_threhold=37, 
+                win_scale_list= [1,             1.5,            2,        ], 
+                ROI_list=       [(0.52,0.7),    (0.52,0.85),    (0.7,1),  ],
+
+                ):
 
         dataset = TrainingDataset(car_path, noncar_path)
         x_loc_list = dataset.getXLoc()
@@ -57,8 +62,13 @@ class VehicleDetector():
 
             self.vehicle_classifier = self.trainClassifier(x_loc_list, y)
 
+        logger.debug('VehicleDetector - Classifier Accuracy: {}'.format(self.vehicle_classifier.getAccuracy()) )
+
         self.filtered_heat = FilteredHeatMap(max_count=filter_maxcount, threshold=heat_threhold)
         self.car_box_list = CarBoxList()
+
+        self.win_scale_list = win_scale_list
+        self.roi_list = ROI_list
 
     def trainClassifier(self, x_loc_list, y):
 
@@ -76,8 +86,7 @@ class VehicleDetector():
         return classifier
 
     def scanImg(self, img_bgr, win_scale=None, 
-                win_scale_list= [1,             1.5,            2,        ], 
-                ROI_list=       [(0.52,0.7),    (0.52,0.85),    (0.7,1),  ],
+                
                 ):
         
 
@@ -89,6 +98,9 @@ class VehicleDetector():
             logger.debug('VehicleDetector - scanImg(): single window size')
             win_scale_list = [win_scale]
             ROI_list = [(0.52, 1.0)]
+        else:
+            win_scale_list = self.win_scale_list 
+            ROI_list = self.roi_list 
 
         for w_scale, roi in zip (win_scale_list, ROI_list):
 
@@ -190,6 +202,8 @@ class VehicleDetector():
             cv2.rectangle(img, (ul_x, ul_y), (br_x, br_y), (255,0,0),6)
 
         return img
+
+
 def main():
     from Util_Debug import visualize
     import glob
@@ -211,10 +225,9 @@ def main():
     
     video_img_bgr = cv2.imread('data/test_images/1038.jpg')
 
-    win_scale_list= [1,             1.5,            2,        ]
-    roi_list =      [(0.52,0.7),    (0.52,0.85),    (0.7,1),  ]
 
-    detected_windows, heatmap1 = car_detector.scanImg(video_img_bgr, win_scale_list=win_scale_list, ROI_list=roi_list)
+
+    detected_windows, heatmap1 = car_detector.scanImg(video_img_bgr)
     print('Test frame 1: Number of detected windows: ', len(detected_windows))
     logger.info('Number of detected windows: {}.'.format(len(detected_windows)) )
 

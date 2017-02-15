@@ -1,3 +1,8 @@
+import logging
+logger = logging.getLogger(__name__)
+logger.info('Classifier module loaded')
+
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 from sklearn.model_selection import train_test_split
@@ -29,6 +34,10 @@ class Classifier():
 
 
 def main():
+
+    logging.basicConfig(filename='debug.log', level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger.info('######################### VehicleDetector - Module Test ############################')
+
     import numpy as np
     from TrainingDataset import TrainingDataset
     import cv2
@@ -59,6 +68,7 @@ def main():
     # Classifier Training 
     #####################################################
     print('\n\n######################### Module Test on Classifier Training ############################ \n')
+    logger.info('\n\n######################### Module Test on Classifier Training ############################ \n')
     test_x_loc_list = x_loc_list[-debug_num:-1]  + x_loc_list[0:debug_num]
     test_y = np.concatenate((y[-debug_num:-1] ,y[0:debug_num]))
 
@@ -86,8 +96,12 @@ def main():
     assert vehicle_classifier.getAccuracy() > 0.5
 
 
+
+
+
     print('\n\n######################### Module Test on Classifier Prediction ############################ \n')
     print('---------- Test predict() on Car images ------------')
+    logger.info('---------- Test predict() on Car images ------------')
     assert debug_num*2 < len(dataset.getXLoc())/2
 
     car_loc_list =x_loc_list[debug_num:2*debug_num]
@@ -112,6 +126,7 @@ def main():
     assert pred_hit_num/len(predicitons) > 0.5
 
     print('\n---------- Test predict() on Non-car images ------------')
+    logger.info('\n---------- Test predict() on Non-car images ------------')
     noncar_loc_list =x_loc_list[-2*debug_num:-1*debug_num]
 
 
@@ -149,11 +164,11 @@ def main():
     print(' type of feature vectors X: {}'.format(type(features)))
     print(' size of a feature : {}'.format( len(features[0]) ))
     print(' shape of a feature : {}'.format( (features[0].shape) ))
-
+    print(' shape of a reshaped feature : {}'.format( features[0].reshape(1,-1).shape) )    
     predictions = []
     for feat in features:
-
-        pred = vehicle_classifier.predict(feat)
+        #TODO: (feat.reshape(1,-1))? OR JUST feat?
+        pred = vehicle_classifier.predict(feat.reshape(1,-1))  
         predictions.append(pred) 
     print('Non-car Prediction hits = {}, misses = {}'.format(pred_hit_num, len(predicitons)-pred_hit_num))
     print('Non-car Prediction Accuracy: ', pred_hit_num/len(predicitons) )

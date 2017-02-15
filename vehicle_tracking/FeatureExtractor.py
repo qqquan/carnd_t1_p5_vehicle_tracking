@@ -10,6 +10,8 @@ from FeatureExtractor_WindowPlanner import WindowPlanner
 import numpy as np
 import cv2
 
+
+
 class FeatureExtractor():
 
     def __init__(self, training_image_shape=(64,64), orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=32):
@@ -32,8 +34,9 @@ class FeatureExtractor():
 
 
         #//TODO: add window zooming with different ROI
+
         if np.max(img) > 1:
-            # jpg image ranges 0~255. png file does not need this because its range is 0~1
+
             img = img.astype(np.float32)/255
 
 
