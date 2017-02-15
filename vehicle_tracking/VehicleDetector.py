@@ -75,14 +75,18 @@ class VehicleDetector():
 
         return classifier
 
-    def scanImg(self, img_bgr, win_scale=1, win_scale_list=[], ROI_list=[]):
+    def scanImg(self, img_bgr, win_scale=None, 
+                win_scale_list= [1,             1.5,            2,        ], 
+                ROI_list=       [(0.52,0.7),    (0.52,0.85),    (0.7,1),  ],
+                ):
         
 
         heatmap = np.zeros_like(img_bgr[:,:,0])
         total_detected_windows = []
 
-        if len(win_scale_list) == 0 or len(ROI_list)==0:
+        if win_scale != None:
             # load normal single window size data
+            logger.debug('VehicleDetector - scanImg(): single window size')
             win_scale_list = [win_scale]
             ROI_list = [(0.52, 1.0)]
 
@@ -95,6 +99,7 @@ class VehicleDetector():
             predictions = self.vehicle_classifier.predict(features)
 
             detected_windows = [win for (win, pred) in zip(windows, predictions) if (pred==1)]
+            logger.debug('VehicleDetector - scanImg(): number of  detected windows for a scale: {}'.format(len(detected_windows)))        
             total_detected_windows.extend(detected_windows)
             for a_win in detected_windows:
 
@@ -107,7 +112,7 @@ class VehicleDetector():
                 heatmap[ul_row:br_row, ul_col:br_col] +=1
 
 
-
+        logger.debug('VehicleDetector - scanImg(): total number of all detected windows: {}'.format(len(total_detected_windows)))        
         self.filtered_heat.update(heatmap)
 
         return total_detected_windows, heatmap
@@ -198,16 +203,16 @@ def main():
 
 
 
-    car_detector = VehicleDetector(enable_checkpoint=True, heat_threhold=40)
+    car_detector = VehicleDetector(enable_checkpoint=True, heat_threhold=37)
 
     print('\n\n######################### Video Frame Test ############################ \n')
 
     print('--------- Test multi-size windows ------ ')
     
-    video_img_bgr = cv2.imread('data/test_images/715.jpg')
+    video_img_bgr = cv2.imread('data/test_images/1038.jpg')
 
-    win_scale_list= [0.7,           1.2,            2,          3]
-    roi_list =      [(0.52,0.7),    (0.52,0.85),    (0.6,1),    (0.6,1) ]
+    win_scale_list= [1,             1.5,            2,        ]
+    roi_list =      [(0.52,0.7),    (0.52,0.85),    (0.7,1),  ]
 
     detected_windows, heatmap1 = car_detector.scanImg(video_img_bgr, win_scale_list=win_scale_list, ROI_list=roi_list)
     print('Test frame 1: Number of detected windows: ', len(detected_windows))
@@ -248,7 +253,7 @@ def main():
 
 
     video_img_bgr2 = cv2.imread('data/test_images/715.jpg')
-    win_scale2 = 1.2
+    win_scale2 = 2
     detected_windows, heatmap2 = car_detector.scanImg(video_img_bgr2, win_scale=win_scale2)
     print('Test frame 2: Number of detected windows: ', len(detected_windows))
     logger.info('Number of detected windows: {}.'.format(len(detected_windows)) )
@@ -287,6 +292,7 @@ def main():
 
 
     print('--------- Test scanImg() and Heatmaps on all test images ------ ')
+    logger.info('--------- Test scanImg() and Heatmaps on all test images ------ ')
 
     sample_dir='data/test_images/'
     images_loc = glob.glob(sample_dir+'*.jpg')
@@ -305,7 +311,8 @@ def main():
 
         detected_windows, heatmap1 = car_detector.scanImg(video_img_bgr)
         print(img_filename+': Number of detected windows: ', len(detected_windows))
-        logger.info(img_filename+':Number of detected windows: {}.'.format(len(detected_windows)) )
+        logger.debug('Testing: '+ img_filename)
+        logger.info(img_filename+': Number of detected windows: {}.'.format(len(detected_windows)) )
 
         img_bgr_marked = car_detector.drawBoxes(video_img_bgr, detected_windows)
 

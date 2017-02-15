@@ -1,5 +1,7 @@
 import numpy as np
 import logging
+import itertools
+
 logger = logging.getLogger(__name__)
 logger.info('CarBoxList module loaded')
 
@@ -120,6 +122,7 @@ class CarBoxList():
             pass
 
 
+
     def getBoxList(self):
         box_list = []
         for car_boxes in self.car_list:
@@ -180,6 +183,13 @@ def main():
     box2 = np.array( ((11, 100), (22,111)))
     assert doOverlap(box1, box2) == False
     assert doOverlap(box2, box1) == False
+
+    # within or encompassing
+    box1 = np.array( ((0, 0), (100,100)))
+    box2 = np.array( ((5, 5), (15,20)))
+    assert doOverlap(box1, box2) == True
+    assert doOverlap(box2, box1) == True
+
     print('\n-- Test1: doOverlap() --------------------------------- \n')
 
 
@@ -282,6 +292,8 @@ def main():
     car_list = carbox_list.getBoxList() 
     print('car_list:', car_list)
     assert carbox_list.getNumOfCars() == 0, 'num of cars: {} '.format(carbox_list.getNumOfCars() )
+
+
 
 
 
