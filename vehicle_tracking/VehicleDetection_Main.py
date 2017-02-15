@@ -3,7 +3,15 @@ from moviepy.editor import VideoFileClip
 import cv2
 
 
-vehicle_detector = VehicleDetector( enable_checkpoint=True )
+vehicle_detector = VehicleDetector( enable_checkpoint=True,
+                                    car_path='data/vehicles/', noncar_path = 'data/non-vehicles/',
+                                    feat_color_conv=cv2.COLOR_BGR2YCrCb, 
+                                    orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(32, 32), hist_bins=32, 
+                                    filter_maxcount=5, 
+                                    heat_threhold=15, 
+                                    win_scale_list= [1,             1.5,            2,        ], 
+                                    ROI_list=       [(0.52,0.7),    (0.52,0.85),    (0.7,1),  ],
+                 )
 
 DBG_counter=0
 
