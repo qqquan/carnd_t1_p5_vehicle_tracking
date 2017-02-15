@@ -22,8 +22,10 @@ class VehicleDetector():
 
 
     #TODO: Issue with spatial_shape=(32, 32), hist_bins=32,
+    #remember to remove pickle file everytime the tuning parameter change, because training needs to be redone with new numbers.
     def __init__(self, car_path='data/vehicles/', noncar_path = 'data/non-vehicles/', enable_checkpoint=False , 
-                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=16, 
+                feat_color_conv=cv2.COLOR_BGR2YCrCb, 
+                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(32, 32), hist_bins=32, 
                 filter_maxcount=5, 
                 heat_threhold=37, 
                 win_scale_list= [1,             1.5,            2,        ], 
@@ -38,6 +40,7 @@ class VehicleDetector():
         example_img = cv2.imread(x_loc_list[0]) 
         self.training_image_shape = example_img.shape[:2]
         self.feature_extractor = FeatureExtractor(  training_image_shape=self.training_image_shape, 
+                                                    color_conv=feat_color_conv,
                                                     orient=orient, 
                                                     pix_per_cell=pix_per_cell,
                                                     cell_per_block=cell_per_block,
@@ -217,13 +220,13 @@ def main():
 
 
 
-    car_detector = VehicleDetector(enable_checkpoint=True, heat_threhold=37)
+    car_detector = VehicleDetector(enable_checkpoint=True, heat_threhold=15)
 
     print('\n\n######################### Video Frame Test ############################ \n')
 
     print('--------- Test multi-size windows ------ ')
     
-    video_img_bgr = cv2.imread('data/test_images/1038.jpg')
+    video_img_bgr = cv2.imread('data/test_images/test5.jpg')
 
 
 

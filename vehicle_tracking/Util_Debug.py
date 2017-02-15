@@ -21,7 +21,9 @@ def visualize(rbg_img_matrix, title_matrix, save_to_file='', enable_show= False)
     col_len = len(rbg_img_matrix[0])
     assert len(rbg_img_matrix[0]) == len(title_matrix[0]), 'Expect a row has the same number of images and titles'
 
-
+    assert len(rbg_img_matrix[0]) != 0
+    assert len(title_matrix[0]) != 0
+    
     f, axes = plt.subplots(row_len, col_len)
 
     f.tight_layout()

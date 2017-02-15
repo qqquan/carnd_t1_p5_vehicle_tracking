@@ -1,3 +1,7 @@
+import logging
+logger = logging.getLogger(__name__)
+logger.info('ColorExtractor module loaded')
+
 import cv2
 import numpy as np
 
@@ -27,7 +31,7 @@ def color_hist(img, nbins=32):
 class ColorExtractor():
 
 
-    def __init__(self, spatial_shape=(16, 16), hist_bins=32):
+    def __init__(self, spatial_shape=(32, 32), hist_bins=32):
         self.spatial_shape = spatial_shape
         self.hist_bins = hist_bins
 
@@ -52,10 +56,10 @@ class ColorExtractor():
 
             subimg = img[ul_row:dr_row, ul_col:dr_col]
 
-            spatial_features = bin_spatial(subimg, size=self.spatial_shape)
-            hist_features = color_hist(subimg, nbins=self.hist_bins)
+            spatial_feature = bin_spatial(subimg, size=self.spatial_shape)
+            hist_feature = color_hist(subimg, nbins=self.hist_bins)
 
-            features.append(np.concatenate((spatial_features, hist_features)))
+            features.append(np.concatenate((spatial_feature, hist_feature)))
 
         return features
 
