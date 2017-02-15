@@ -21,9 +21,9 @@ from scipy.ndimage.measurements import label
 class VehicleDetector():
 
 
-
+    #TODO: Issue with spatial_shape=(32, 32), hist_bins=32,
     def __init__(self, car_path='data/vehicles/', noncar_path = 'data/non-vehicles/', enable_checkpoint=False , 
-                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(32, 32), hist_bins=32, 
+                orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=16, 
                 filter_maxcount=5, 
                 heat_threhold=37, 
                 win_scale_list= [1,             1.5,            2,        ], 
