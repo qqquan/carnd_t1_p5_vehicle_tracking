@@ -27,9 +27,9 @@ class VehicleDetector():
                 feat_color_conv=cv2.COLOR_BGR2YCrCb, 
                 orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(32, 32), hist_bins=32, 
                 filter_maxcount=5, 
-                heat_threhold=15, 
+                heat_threhold=26, 
                 win_scale_list= [1,             1.5,            2,        ], 
-                ROI_list=       [(0.52,0.7),    (0.52,0.85),    (0.7,1),  ],
+                ROI_list=       [(0.52,0.7),    (0.52,0.85),    (0.72,1),  ],
 
                 ):
 
@@ -220,13 +220,13 @@ def main():
 
 
 
-    car_detector = VehicleDetector(enable_checkpoint=True, heat_threhold=15)
+    car_detector = VehicleDetector(enable_checkpoint=True)
 
     print('\n\n######################### Video Frame Test ############################ \n')
 
     print('--------- Test multi-size windows ------ ')
     
-    video_img_bgr = cv2.imread('data/test_images/test5.jpg')
+    video_img_bgr = cv2.imread('data/test_images/1038.jpg')
 
 
 
@@ -256,7 +256,7 @@ def main():
     print('--------- Test windows  sizes and heatmap------ ')
 
     
-    video_img_bgr = cv2.imread('data/test_images/715.jpg')
+    video_img_bgr = cv2.imread('data/test_images/537.jpg')
 
     win_scale1 = 0.9
 
@@ -266,9 +266,10 @@ def main():
 
     img_bgr_marked = car_detector.drawBoxes(video_img_bgr, detected_windows)
 
+    car_detector.resetHeatmap() 
 
 
-    video_img_bgr2 = cv2.imread('data/test_images/715.jpg')
+    video_img_bgr2 = cv2.imread('data/test_images/537.jpg')
     win_scale2 = 2
     detected_windows, heatmap2 = car_detector.scanImg(video_img_bgr2, win_scale=win_scale2)
     print('Test frame 2: Number of detected windows: ', len(detected_windows))
