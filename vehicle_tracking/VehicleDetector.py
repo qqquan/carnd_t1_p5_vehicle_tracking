@@ -227,7 +227,7 @@ def main():
 
     print('--------- Test multi-size windows ------ ')
     
-    video_img_bgr = cv2.imread('data/test_images/1122.jpg')
+    video_img_bgr = cv2.imread('data/test_images/1049.jpg')
 
 
 
@@ -257,7 +257,7 @@ def main():
     print('--------- Test windows  sizes and heatmap------ ')
 
     
-    video_img_bgr = cv2.imread('data/test_images/1038.jpg')
+    video_img_bgr = cv2.imread('data/test_images/1049.jpg')
 
     win_scale1 = 1
 
@@ -271,7 +271,7 @@ def main():
     car_detector.resetHeatmap() 
 
 
-    video_img_bgr2 = cv2.imread('data/test_images/1038.jpg')
+    video_img_bgr2 = cv2.imread('data/test_images/1049.jpg')
     win_scale2 = 2
     detected_windows, heatmap2 = car_detector.scanImg(video_img_bgr2, win_scale=win_scale2)
     print('Test frame 2: Number of detected windows: ', len(detected_windows))
