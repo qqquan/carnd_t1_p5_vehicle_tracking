@@ -35,7 +35,7 @@ class Classifier():
 
 
 
-def main(    debug_num=100, small_data_training=False ):
+def main(    debug_num=100, use_pre_trained_classifier=True ):
 
     
 
@@ -97,7 +97,7 @@ def main(    debug_num=100, small_data_training=False ):
 
     assert len(X) == len(test_y), 'Num of feature vectors: {}, number of labels: {}'.format(len(X), len(y) )
 
-    if small_data_training:
+    if use_pre_trained_classifier == False:
         vehicle_classifier = Classifier(X,test_y)
     else:
         import os.path
@@ -108,13 +108,15 @@ def main(    debug_num=100, small_data_training=False ):
             with open('veh_classifier_checkpoint.pickle', 'rb') as handle:
                 vehicle_classifier = pickle.load(handle)
         else: 
-            logger.debug('VehicleDetector: initialize a new checkpoint.')
-            vehicle_classifier = self.trainClassifier(x_loc_list, y)
+            X = []
+            for x_loc in x_loc_list:
+                img_bgr = cv2.imread(x_loc)
 
-            with open('veh_classifier_checkpoint.pickle', 'wb') as handle:
-                pickle.dump(self.vehicle_classifier, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                features,_ = feature_extractor.extractFeaturesAndWindows(img_bgr)
 
-
+                assert len(features) == 1
+                X.extend(features)
+            vehicle_classifier = Classifier(X,y)
 
 
 

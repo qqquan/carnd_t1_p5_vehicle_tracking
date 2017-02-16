@@ -36,12 +36,13 @@ class FeatureExtractor():
 
         if np.max(img) < 1:
             logger.warning('FeatureExtractor: image data < 1 . np.max(img) = {}'.format(np.max(img)))
-        if np.max(img) > 1:
 
-            logger.debug('original image max data: {}'.format( np.max(img)))
-            img = img.astype(np.float32)/255
-            logger.debug('/255 image max data: {}'.format( np.max(img)))
-            logger.debug('/255 image average data: {}'.format( np.average(img)))
+        # only a problem with matplotlib  that imread return  png as 0~1. cv2 is ok with 0~255
+        # if np.max(img) > 1:
+        #     logger.debug('original image max data: {}'.format( np.max(img)))
+        #     img = img.astype(np.float32)/255
+        #     logger.debug('/255 image max data: {}'.format( np.max(img)))
+        #     logger.debug('/255 image average data: {}'.format( np.average(img)))
 
 
 
@@ -81,7 +82,6 @@ class FeatureExtractor():
 
 
         #TODO: Make a new window list if image is scaled
-        scaled_brg_img = cv2.resize(image, ( int(image.shape[1]/win_scale), int(image.shape[0]/win_scale) ))
 
         return features, scaled_windows
 

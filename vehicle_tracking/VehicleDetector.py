@@ -27,7 +27,7 @@ class VehicleDetector():
                 feat_color_conv=cv2.COLOR_BGR2YCrCb, 
                 orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(32, 32), hist_bins=32, 
                 filter_maxcount=5, 
-                heat_threhold=26, 
+                heat_threhold=7, 
                 win_scale_list= [1,             1.5,            2,        ], 
                 ROI_list=       [(0.52,0.7),    (0.52,0.85),    (0.72,1),  ],
 
@@ -226,7 +226,7 @@ def main():
 
     print('--------- Test multi-size windows ------ ')
     
-    video_img_bgr = cv2.imread('data/test_images/1038.jpg')
+    video_img_bgr = cv2.imread('data/test_images/1049.jpg')
 
 
 
