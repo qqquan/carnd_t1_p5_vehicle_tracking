@@ -27,7 +27,7 @@ class VehicleDetector():
                 feat_color_conv=cv2.COLOR_BGR2YCrCb, 
                 orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(32, 32), hist_bins=32, 
                 filter_maxcount=5, 
-                heat_threhold=7, 
+                heat_threhold=63, 
                 win_scale_list= [1,             1.5,            2,        ], 
                 ROI_list=       [(0.52,0.7),    (0.52,0.85),    (0.72,1),  ],
 
@@ -72,6 +72,7 @@ class VehicleDetector():
 
         self.win_scale_list = win_scale_list
         self.roi_list = ROI_list
+        self.pix_per_cell= pix_per_cell
 
     def trainClassifier(self, x_loc_list, y):
 
@@ -93,7 +94,7 @@ class VehicleDetector():
                 ):
         
 
-        heatmap = np.zeros_like(img_bgr[:,:,0])
+        heatmap = np.zeros_like(img_bgr[:,:,0]).astype(np.float32)
         total_detected_windows = []
 
         if win_scale != None:
@@ -124,7 +125,7 @@ class VehicleDetector():
                 ul_row, ul_col = ul_pos
                 br_row, br_col = br_pos
 
-                heatmap[ul_row:br_row, ul_col:br_col] +=1
+                heatmap[ul_row:br_row, ul_col:br_col] += (1*w_scale*self.training_image_shape[0]/self.pix_per_cell)  #even out the number of windows and hits. smaller window has more test results, so it has higher weight on over all result
 
 
         logger.debug('VehicleDetector - scanImg(): total number of all detected windows: {}'.format(len(total_detected_windows)))        
@@ -226,7 +227,7 @@ def main():
 
     print('--------- Test multi-size windows ------ ')
     
-    video_img_bgr = cv2.imread('data/test_images/1049.jpg')
+    video_img_bgr = cv2.imread('data/test_images/1122.jpg')
 
 
 
@@ -260,6 +261,7 @@ def main():
 
     win_scale1 = 1
 
+    car_detector.resetHeatmap() 
     detected_windows, heatmap1 = car_detector.scanImg(video_img_bgr, win_scale1)
     print('Test frame 1: Number of detected windows: ', len(detected_windows))
     logger.info('Number of detected windows: {}.'.format(len(detected_windows)) )
@@ -269,7 +271,7 @@ def main():
     car_detector.resetHeatmap() 
 
 
-    video_img_bgr2 = cv2.imread('data/test_images/537.jpg')
+    video_img_bgr2 = cv2.imread('data/test_images/1038.jpg')
     win_scale2 = 2
     detected_windows, heatmap2 = car_detector.scanImg(video_img_bgr2, win_scale=win_scale2)
     print('Test frame 2: Number of detected windows: ', len(detected_windows))
