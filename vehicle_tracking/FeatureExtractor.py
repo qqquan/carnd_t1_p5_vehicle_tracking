@@ -14,7 +14,7 @@ import cv2
 
 class FeatureExtractor():
 
-    def __init__(self, training_image_shape=(64,64), color_conv=cv2.COLOR_BGR2YCrCb,  orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(16, 16), hist_bins=32):
+    def __init__(self, training_image_shape=(64,64), color_conv=cv2.COLOR_BGR2YCrCb,  orient=9, pix_per_cell=8, cell_per_block=2,  spatial_shape=(32, 32), hist_bins=32):
 
         self.window_planner = WindowPlanner(training_image_shape, pix_per_cell = pix_per_cell)
         self.hog_extractor = HogExtractor(orient=orient, pix_per_cell = pix_per_cell, cell_per_block=cell_per_block)
@@ -38,7 +38,11 @@ class FeatureExtractor():
             logger.warning('FeatureExtractor: image data < 1 . np.max(img) = {}'.format(np.max(img)))
         if np.max(img) > 1:
 
+            logger.debug('original image max data: {}'.format( np.max(img)))
             img = img.astype(np.float32)/255
+            logger.debug('/255 image max data: {}'.format( np.max(img)))
+            logger.debug('/255 image average data: {}'.format( np.average(img)))
+
 
 
         img_scaled = cv2.resize(img, ( int(img.shape[1]/win_scale), int(img.shape[0]/win_scale) ))
@@ -50,8 +54,9 @@ class FeatureExtractor():
         scaled_windows = np.multiply(windows, win_scale)
 
 
+        logger.debug('FeatureExtractor extractFeaturesAndWindows() - img_scaled shape: {}'.format(img_scaled.shape))
+        logger.debug('FeatureExtractor extractFeaturesAndWindows() - window example: {}'.format(windows[0]))
         color_features = self.color_extractor.getFeatures(img_scaled, windows)
-
         hog_features = self.hog_extractor.getFeatures(img_scaled, windows)
 
 
@@ -76,8 +81,10 @@ class FeatureExtractor():
 
 
         #TODO: Make a new window list if image is scaled
+        scaled_brg_img = cv2.resize(image, ( int(image.shape[1]/win_scale), int(image.shape[0]/win_scale) ))
 
         return features, scaled_windows
+
 
 def main():
     logging.basicConfig(filename='debug.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -104,7 +111,7 @@ def main():
 
     print('\n\n######################### Video Frame Test ############################ \n')
     logger.info('Video Frame Test -------------- \n')
-    video_img_brg = cv2.imread('data/test_images/test6.jpg')
+    video_img_brg = cv2.imread('data/test_images/1038.jpg')
 
     frame_features, frame_windows = feature_extractor.extractFeaturesAndWindows(video_img_brg, win_scale=1.5)
     print('number of features: ', len(frame_features))

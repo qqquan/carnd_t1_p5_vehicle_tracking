@@ -75,6 +75,9 @@ def main():
     img2 = cv2.cvtColor(img_noncar, cv2.COLOR_BGR2RGB)
     title2 = 'Not-Car'
 
+
+    print('image1 max data', np.max(img1))
+    print('image2 max data', np.max(img2))
     save_to_file = 'data/outputs/car_not_car.png'
 
     f, (ax1, ax2) = plt.subplots(1, 2)
@@ -88,6 +91,7 @@ def main():
         plt.savefig(save_to_file)
     plt.show()
     plt.close()
+
 
 
 
