@@ -104,5 +104,9 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 ####1. Use HOG on a window-cropped image instead of the speedy HOG mapping method
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+To speed up feature extration, a HOG mapping method is used. Instead of apply HOG on each sub-image, a full video frame is fed to HOG. This give a HOG result matrix. Then we map the 64x64 window to the HOG matrix. 
+However, there is difference between indivisual sub-image HOG result and the HOG map result. Each sub-image has a hard cut-off on the edge of its image, while the full image HOG offers gradience information between windows. 
+The HOG mapping method is only an approximation to sub-image approximation. The classifier training uses the 64x64 data, so the HOG mapping method on the video mframe is essentially not consisstent with the training inputs to the classifier. As the result, although it improves the speed, the accuracy suffers. 
+I tested on cropped fifty 64x64 images from a video frame. It give zero false positive. On the other hand, the full image scan makes 6~10 false positive predictions. 
+As a fater computer can be used to speed up the process, sub-image HOG method can be used in the future development to improve accuracy.
 
