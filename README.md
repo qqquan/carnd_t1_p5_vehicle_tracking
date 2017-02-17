@@ -38,7 +38,7 @@ You're reading it!
 
 ####1. Explain how (and identify where in your code) you extracted HOG features from the training images.
 
-The code for this step is contained in the first code cell of the IPython notebook (or in lines # through # of the file called `some_file.py`).  
+The code for this step is contained in the function get_hog_features() and getFeatures() at `FeatureExtractor_Hog.py`.  
 
 I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
 
@@ -53,7 +53,18 @@ Here is an example using the `YCrCb` color space and HOG parameters of `orientat
 
 ####2. Explain how you settled on your final choice of HOG parameters.
 
-I tried various combinations of parameters and...
+I tried various combinations of parameters and feed them to train the model. The following parameters shows a satisfactory performance in my testing: 
+
+| Prameter        | Value         |
+| --------------- |:-------------:|
+| Color space     | YCrCb         |
+| orientations    | 9             |
+| pixels_per_cell | 8             |
+| cell_per_block  | 2             |
+| spatial_shape   | (32, 32)      |
+| histogram bins  | 32            |
+
+In general, pixels_per_cell captures the key car features, such as lamps and windows, in the  6xx64 training data. The color space isolates out the illumination effect to be possible supressed in the model. The other parameters more or less provide a lot more data or details of the feature to be fed to model training. The trade-off is that smaller feature vector improves the video processing time, while bigger vector improves model prediction accuracy.
 
 ####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
