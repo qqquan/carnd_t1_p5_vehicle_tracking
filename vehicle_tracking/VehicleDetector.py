@@ -99,7 +99,6 @@ class VehicleDetector():
 
         if win_scale != None:
             # load normal single window size data
-            logger.debug('VehicleDetector - scanImg(): single window size')
             win_scale_list = [win_scale]
             ROI_list = [(0.52, 1.0)]
         else:
@@ -108,14 +107,17 @@ class VehicleDetector():
 
         for w_scale, roi in zip (win_scale_list, ROI_list):
 
+            # logger.debug('scanImg(): start feature extraction')
 
             features, windows = self.feature_extractor.extractFeaturesAndWindows(np.copy(img_bgr), win_scale=w_scale, region_of_interest_row_ratio=roi)
 
-
+            # logger.debug('scanImg(): start predicting. \n window scale: {}, features shape: {}, number of windows: {}'.format(w_scale, len(features), len(windows)))
+            # logger.debug(' feature shape: {}, window shape: {}'.format((features[0].shape), (windows[0].shape)))
             predictions = self.vehicle_classifier.predict(features)
+            # logger.debug('scanImg(): collect detected windows')
 
             detected_windows = [win for (win, pred) in zip(windows, predictions) if (pred==1)]
-            logger.debug('VehicleDetector - scanImg(): number of  detected windows for a scale: {}'.format(len(detected_windows)))        
+            # logger.debug('VehicleDetector - scanImg(): number of  detected windows for a scale: {}'.format(len(detected_windows)))        
             total_detected_windows.extend(detected_windows)
             for a_win in detected_windows:
 
@@ -125,10 +127,9 @@ class VehicleDetector():
                 ul_row, ul_col = ul_pos
                 br_row, br_col = br_pos
 
-                heatmap[ul_row:br_row, ul_col:br_col] += (1*w_scale*self.training_image_shape[0]/self.pix_per_cell)  #even out the number of windows and hits. smaller window has more test results, so it has higher weight on over all result
+                heatmap[ul_row:br_row, ul_col:br_col] += (1.0*w_scale*self.training_image_shape[0]/self.pix_per_cell)  #even out the number of windows and hits. smaller window has more test results, so it has higher weight on over all result
 
 
-        logger.debug('VehicleDetector - scanImg(): total number of all detected windows: {}'.format(len(total_detected_windows)))        
         self.filtered_heat.update(heatmap)
 
         return total_detected_windows, heatmap
@@ -227,7 +228,7 @@ def main():
 
     print('--------- Test multi-size windows ------ ')
     
-    video_img_bgr = cv2.imread('data/test_images/1049.jpg')
+    video_img_bgr = cv2.imread('data/test_images/2.jpg')
 
 
 

@@ -4,7 +4,8 @@ logger.info('Classifier module loaded')
 
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import LinearSVC
+from sklearn.svm import LinearSVC, SVC
+import sklearn.svm
 from sklearn.model_selection import train_test_split
 
 class Classifier():
@@ -12,6 +13,8 @@ class Classifier():
     def __init__(self, X, y):
         
 
+        # self.svc = sklearn.svm.SVC(kernel='linear')
+        # self.svc = sklearn.svm.SVC(kernel='rbf')
         self.svc = LinearSVC()
 
         self.X_scaler = StandardScaler().fit(X)
@@ -35,7 +38,7 @@ class Classifier():
 
 
 
-def main(    debug_num=100, use_pre_trained_classifier=True ):
+def main(    debug_num=100, use_pre_trained_classifier=False ):
 
     
 

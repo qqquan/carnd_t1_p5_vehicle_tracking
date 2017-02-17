@@ -48,15 +48,9 @@ class FeatureExtractor():
 
         img_scaled = cv2.resize(img, ( int(img.shape[1]/win_scale), int(img.shape[0]/win_scale) ))
 
-        logger.debug('FeatureExtractor -  scale = {}'.format(win_scale))
-        logger.debug('FeatureExtractor -  new shape = {}, old shape ={}'.format(img_scaled.shape, img.shape))
-
         windows = self.window_planner.getHogWindows(img_scaled, region_of_interest_row_ratio ) # windows of upper-left and bottom-right pixel positions of hog blocks
-        scaled_windows = np.multiply(windows, win_scale)
+        scaled_windows = np.multiply(windows, win_scale).astype(int)
 
-
-        logger.debug('FeatureExtractor extractFeaturesAndWindows() - img_scaled shape: {}'.format(img_scaled.shape))
-        logger.debug('FeatureExtractor extractFeaturesAndWindows() - window example: {}'.format(windows[0]))
         color_features = self.color_extractor.getFeatures(img_scaled, windows)
         hog_features = self.hog_extractor.getFeatures(img_scaled, windows)
 
