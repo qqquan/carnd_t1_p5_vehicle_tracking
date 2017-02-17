@@ -228,7 +228,7 @@ def main():
 
     print('--------- Test multi-size windows ------ ')
     
-    video_img_bgr = cv2.imread('data/test_images/2.jpg')
+    video_img_bgr = cv2.imread('data/test_images/1049.jpg')
 
 
 

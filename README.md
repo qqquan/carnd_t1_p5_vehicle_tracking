@@ -17,7 +17,7 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 [image1]: ./examples/car_not_car.png
 [image2]: ./examples/HOG_example.jpg
-[image3]: ./examples/sliding_windows.jpg
+[image3]: ./examples/car_detection_windows_multi_sizes.png
 [image4]: ./examples/car_detection_windows.jpg
 [image5]: ./examples/bboxes_and_heat.png
 [image6]: ./examples/labels_map.png
@@ -51,7 +51,7 @@ Here is an example using the `YCrCb` color space and HOG parameters of `orientat
 
 ![alt text][image2]
 
-####2. Explain how you settled on your final choice of HOG parameters.
+####2. HOG parameters.
 
 I tried various combinations of parameters and feed them to train the model. The following parameters shows a satisfactory performance in my testing: 
 
@@ -64,23 +64,36 @@ I tried various combinations of parameters and feed them to train the model. The
 | spatial_shape   | (32, 32)      |
 | histogram bins  | 32            |
 
-In general, pixels_per_cell captures the key car features, such as lamps and windows, in the  6xx64 training data. The color space isolates out the illumination effect to be possible supressed in the model. The other parameters more or less provide a lot more data or details of the feature to be fed to model training. The trade-off is that smaller feature vector improves the video processing time, while bigger vector improves model prediction accuracy.
+In general, pixels_per_cell captures the key car features, such as lamps and windows, in proportion to the  64x64 training data. The color space isolates out the illumination effection, so lighting variaion can be supressed in the model. The other parameters more or less provide a lot more data or details of the feature to be fed for model training. The trade-off is that smaller feature vector speeds up the video processing, while a bigger vector improves model prediction accuracy.
 
-####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
+####3. Classifier
 
-I trained a linear SVM using...
+I trained a linear SVM using HOG and color features. In order to speed up the process, HOG vector is extracted over the whole video frame and then mapped to each small window. The color feature is extracted from direct pixel values of a size-reduced sub-image, in addition to the histogram data of the image. 
 
 ###Sliding Window Search
 
-####1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
+####1. Implementation
 
-I decided to search random window positions at random scales all over the image and came up with this (ok just kidding I didn't actually ;):
+The sliding window specifies the image area where feature is extracted. The feature extraction method computes feature vectors based on the image data bounded by the sliding windows.
+
+For training images being 64x64, a fixed window of the same size is used to train model. As to video frames, the window position is carefully chosen to map so that the window positions precisely matches the block positions in the HOG feature matrix. The code is implemented at `FeatureExtractor_WindowPlanner.py`.
+
+The window moves at a step of 1/8 of window size, based on the HOG block step of 8 pixels and window size of 64 pixels. The window slides horizontally and vertically within a region of interest. The bigger the window, the lower in the image the region is. The windows scaling is implemented by zoom in or out the image. The window size and its corresponding region of interest is summerized in the following table.
+
+| Window Size     | Proportion of Region of Interest from Image Bottom   |
+| --------------- |:----------------------------------------------------:|
+| 64x64           | 0.52 ~ 0.7                                           |
+| 96x96           | 0.52 ~ 0.85                                          |
+| 128x128         | 0.71 ~ 1                                             |
+
+
+The following image shows an example of the size-varied random sliding windows and the searched result.
 
 ![alt text][image3]
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
+Ultimately I searched on three scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
 
 ![alt text][image4]
 ---
