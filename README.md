@@ -124,7 +124,7 @@ Here's an example result showing a series of frames of video, the result of `sci
 
 ---
 
-###Further Work
+###Future Work
 
 ####1. Use HOG on a window-cropped image instead of the speedy HOG mapping method
 
