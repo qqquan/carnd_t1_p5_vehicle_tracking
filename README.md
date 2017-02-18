@@ -31,7 +31,7 @@ The goals / steps of this project are the following:
 ---
 ###Design
 
-The top layer abstraction is implemented at`VehicleDetector.py`, while `VehicleDetection_Main.py` is the application code that generates the video output. A centralized feature extraction module is designed at `FeatureExtractor.py`, which can uniformly processes both training images and video frames. 
+The top layer abstraction is implemented at`VehicleDetector.py`, while `VehicleDetection_Main.py` is the application code that generates the video output. A centralized feature extraction module is designed at `FeatureExtractor.py`, which uniformly processes both training images and video frames. 
 
 The following diagram shows the design of software architecture and logic flow.
 
