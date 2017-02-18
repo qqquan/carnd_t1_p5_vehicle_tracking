@@ -253,7 +253,7 @@ def main():
 
 
 
-    visualize(img_list, title_list, loc_to_save, figsize=(10,20), enable_show=True)
+    visualize(img_list, title_list, loc_to_save, figsize=(15,20), enable_show=True)
 
 
     print('\n\n######################### Video Frame Test ############################ \n')
