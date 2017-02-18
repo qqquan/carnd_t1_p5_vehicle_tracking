@@ -17,7 +17,7 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 [SDD_image0]: ./doc/tracking_design_diagram.png
-[image1]: ./doc/car_not_car.png
+[image1]: ./doc/car_not_car_resized.png
 [image2]: ./doc/HOG_example.jpg
 [image3]: ./doc/car_detection_windows_multi_sizes_resized.png
 [image4_pipeline_eg1]: ./doc/heated_test1_resized.jpg
