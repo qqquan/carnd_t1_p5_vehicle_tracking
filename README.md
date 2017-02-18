@@ -96,7 +96,7 @@ The following image shows an example of the size-varied random sliding windows a
 
 ####2. Examples of test images after optimized pipeline
 
-Ultimately I searched on three scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector. Sliding windows varis the sizes and scanning on different regions of interest over the image. All the hits are overlayed on each other to generate a heatmap. The heatmap is optimized by tunning the hyper-parameter of the threhold. In particular, a smaller window generates more hits while the bigger window has fewer hits because it has less room to move around in the image. Therefore, varied weights are applied to the heatmap to further optimize the recognition perforamce. Here are some example images:
+Ultimately I searched on three scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector. Sliding windows varies the sizes and scanning on different regions of interest over the image. All the hits are overlaid on each other to generate a heatmap. The heatmap is optimized by tunning the hyper-parameter of the threshold. In particular, a smaller window generates more hits while the bigger window has fewer hits because it has less room to move around in the image. Therefore, varied weights are applied to the heatmap to further optimize the recognition performance. Here are some example images:
 
 ![example 1][image4_pipeline_eg1]
 ![example 2][image4_pipeline_eg2]
