@@ -71,7 +71,7 @@ In general, pixels_per_cell of 8 captures the key car features, such as lamps an
 
 ####3. Classifier
 
-I trained a linear SVM using HOG and color features. In order to speed up the process, HOG vector is extracted over the whole video frame and then mapped to each small window. The color feature is extracted from direct pixel values of a size-reduced sub-image, in addition to the histogram data of the image. 
+I trained a linear SVM using HOG and color features. In order to speed up the process, HOG vector is extracted over the whole video frame and then mapped to each small window. The color feature is extracted from direct pixel values of a size-reduced sub-image, in addition to the histogram data of the image. Before fitting the model, StandardScaler is used to normalize the data. The code is at `Classifier.py`.
 
 ###Sliding Window Search
 
@@ -81,7 +81,7 @@ The sliding window specifies the image area where feature is extracted. The feat
 
 For training images being 64x64, a fixed window of the same size is used to train model. As to video frames, the window position is carefully chosen to map so that the window positions precisely matches the block positions in the HOG feature matrix. The code is implemented at `FeatureExtractor_WindowPlanner.py`.
 
-The window moves at a step of 1/8 of window size, based on the HOG block step of 8 pixels and window size of 64 pixels. The window slides horizontally and vertically within a region of interest. The bigger the window, the lower in the image the region is. The windows scaling is implemented by zoom in or out the image. The window size and its corresponding region of interest is summarized in the following table.
+The window moves at a step of 1/8 of window size, based on the HOG block step of 8 pixels and window size of 64 pixels. The window slides horizontally and vertically within a region of interest. The smaller the window, the higher in the image the region is to capture distant cars. The windows scaling is implemented by zoom in or out the image. The window size and its corresponding region of interest is summarized in the following table.
 
 | Window Size     | Proportion of Region of Interest from Image Bottom   |
 | --------------- |:----------------------------------------------------:|
