@@ -17,14 +17,14 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 [SDD_image0]: ./doc/tracking_design_diagram.png
-[image1]: ./doc/car_not_car_resized.png
+[image1]: ./doc/car_not_car.png
 [image2]: ./doc/HOG_example.jpg
 [image3]: ./doc/car_detection_windows_multi_sizes_resized.png
 [image4_pipeline_eg1]: ./doc/heated_test1_resized.jpg
 [image4_pipeline_eg2]: ./doc/heated_test3_resized.jpg
 [image4_pipeline_eg3]: ./doc/heated_test4_resized.jpg
 
-[image7]: ./doc/output_bboxes.png
+[image7]: ./doc/output_bboxes_new.png
 [video1]: ./project_video.mp4
 
 
