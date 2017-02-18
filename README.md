@@ -109,7 +109,7 @@ Ultimately I searched on three scales using YCrCb 3-channel HOG features plus sp
 ####1. Final Video Output 
 Click the following image to view the tracking demo on YouTube:
 
-[![Vehicle-Tracking Video](http://img.youtube.com/vi/XRLHp-QBhCE/0.jpg)](https://www.youtube.com/embed/XRLHp-QBhCE "Vehicle Tracking Video on YouTube")
+[![Vehicle-Tracking Video](https://github.com/qqquan/carnd_t1_p5_vehicle_tracking/raw/master/doc/youtube_video.png)](https://www.youtube.com/embed/XRLHp-QBhCE "Vehicle Tracking Video on YouTube")
 
 
 ####2. Filter for false positives and overlapping bounding boxes.
