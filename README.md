@@ -138,7 +138,7 @@ As a faster computer can be used to speed up the process, sub-image HOG method c
 The incoming cars are not filtered out, because it is useful surrounding information. Further work can be done to add a switch to turn off incoming traffic detection based on region-of interest, lane-detection, moving direction of bounding boxes, etc. 
 
 ####3. Bounding box filtering and Object Tracking
-The output video shows the current filter still misses at some cases. Further work is needed to have a full-fledged Car class to track and filter each car's position, speed, distance, etc.
+The output video shows the current filter is still not smooth and misses at some nesting cases. Further work is needed to have a full-fledged Car class to track and filter each car's position, speed, distance, etc.
 
 ####4. Classifiers and Dataset
-This work uses LinearSVC for its speediness in prototyping and near 99% accuracy with the Udacity dataset. There are many other good classifier to evaluate such as RBF SVM. Deep Learning methods are another huge resource for more challenging driving situations. Because of the well-encapsulated code, new classifiers or models and be swapped and tested at `Classifier.py`.
+This work uses LinearSVC for its speediness in prototyping and near 99% accuracy with the Udacity dataset. There are many other good classifier to evaluate such as RBF SVM. Deep Learning methods are another excellent resource for more challenging driving situations and greater training dataset. Because of the well-encapsulated code, new classifiers or models and be swapped and tested at `Classifier.py`.
