@@ -67,7 +67,7 @@ I tried various combinations of parameters and feed them to train the model. The
 | spatial_shape   | (32, 32)      |
 | histogram bins  | 32            |
 
-In general, pixels_per_cell captures the key car features, such as lamps and windows, in proportion to the  64x64 training data. The color space isolates out the illumination effects, so lighting variation can be suppressed in the model. The other parameters more or less provide a lot more data or details of the feature to be fed for model training. The trade-off is that smaller feature vector speeds up the video processing, while a bigger vector improves model prediction accuracy.
+In general, pixels_per_cell of 8 captures the key car features, such as lamps and windows, in proportion to the 64x64 training data. The color space YCrCb isolates out the illumination effects, so lighting variation can be suppressed in the model. The other parameters more or less provide a lot more data or details of the feature to be fed for model training. The trade-off is that smaller feature vector speeds up the video processing, while a bigger vector improves model prediction accuracy.
 
 ####3. Classifier
 
@@ -141,4 +141,4 @@ The incoming cars are not filtered out, because it is useful surrounding informa
 The output video shows the current filter is still not smooth and misses at some nesting cases. Further work is needed to have a full-fledged Car class to track and filter each car's position, speed, distance, etc.
 
 ####4. Classifiers and Dataset
-This work uses LinearSVC for its speediness in prototyping and near 99% accuracy with the Udacity dataset. There are many other good classifier to evaluate such as RBF SVM. Deep Learning methods are another excellent resource for more challenging driving situations and greater training dataset. Because of the well-encapsulated code, new classifiers or models and be swapped and tested at `Classifier.py`.
+This work uses LinearSVC for its speediness in prototyping and near 99% accuracy with the Udacity dataset. There are many other good classifier to evaluate such as, RBF SVM. Deep Learning methods are another excellent resource for more challenging driving situations and greater training dataset. Because of the well-encapsulated code, new classifiers or models and be swapped and tested at `Classifier.py`.
