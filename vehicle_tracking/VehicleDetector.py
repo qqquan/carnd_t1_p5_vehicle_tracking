@@ -235,16 +235,18 @@ def main():
     title_list = []
     for img_loc in images_loc:
         img_bgr = cv2.imread(img_loc)
+        detected_windows, heatmap1 = car_detector.scanImg(img_bgr)
+
         img_labled_bgr, label_map = car_detector.labelCars(img_bgr)
         img_labled_rgb = cv2.cvtColor(img_labled_bgr, cv2.COLOR_BGR2RGB)
 
-        img_list.append([img_labled_rgb, label_map])
+        img_list.append([img_labled_rgb,heatmap1, label_map])
         # img_filename = img_loc[-8:]
         path, img_filename = os.path.split(img_loc)   
 
         print('Loading {}...'.format(img_filename))
         logger.info('Tested {}.'.format(img_filename))
-        title_list.append( [img_filename+' - Labeled Image ', img_filename+' - Label Map '] )
+        title_list.append( [img_filename+' - Labeled Image ', ' Heat Map ',  'Label Map '] )
 
 
     loc_to_save = 'data/outputs/output_bboxes.png'
