@@ -71,7 +71,7 @@ In general, pixels_per_cell of 8 captures the key car features, such as lamps an
 
 ####3. Classifier
 
-I trained a linear SVM using HOG and color features. In order to speed up the process, HOG vector is extracted over the whole video frame and then mapped to each small window. The color feature is extracted from direct pixel values of a size-reduced sub-image, in addition to the histogram data of the image. Before fitting the model, StandardScaler is used to normalize the data. The code is at `Classifier.py`.
+I trained a linear SVM using HOG and color features. In order to speed up the process, HOG vector is extracted over the whole video frame and then mapped to each small window. The color feature is extracted from direct pixel values of a size-reduced sub-image, in addition to the histogram data of the image. Before model training and prediction, StandardScaler is used to normalize the data. The code is at `Classifier.py`.
 
 ###Sliding Window Search
 
