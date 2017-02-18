@@ -31,7 +31,7 @@ The goals / steps of this project are the following:
 ---
 ###Design
 
-The following diagram shows the design of software archietecture and logic flow.
+The following diagram shows the design of software archietecture and logic flow. The source file names follow the diagram. `VehicleDetector.py` is the core engine.
 
 ![alt text][SDD_image0]
 
