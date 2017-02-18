@@ -19,12 +19,11 @@ The goals / steps of this project are the following:
 [SDD_image0]: ./doc/tracking_design_diagram.png
 [image1]: ./doc/car_not_car.png
 [image2]: ./doc/HOG_example.jpg
-[image3]: ./doc/car_detection_windows_multi_sizes.png
-[image4_pipeline_eg1]: ./doc/heated_test1.jpg
-[image4_pipeline_eg2]: ./doc/heated_test3.jpg
+[image3]: ./doc/car_detection_windows_multi_sizes_resized.png
+[image4_pipeline_eg1]: ./doc/heated_test1_resized.jpg
+[image4_pipeline_eg2]: ./doc/heated_test3_resized.jpg
 [image4_pipeline_eg3]: ./doc/heated_test4.jpg
-[image5]: ./doc/bboxes_and_heat.png
-[image6]: ./doc/labels_map.png
+
 [image7]: ./doc/output_bboxes.png
 [video1]: ./project_video.mp4
 
@@ -105,26 +104,18 @@ Ultimately I searched on three scales using YCrCb 3-channel HOG features plus sp
 
 ### Video Implementation
 
-####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
+####1. Final Video Output 
 Click the following image to view the tracking demo on YouTube:
 
 [![Vehicle-Tracking Video](http://img.youtube.com/vi/XRLHp-QBhCE/0.jpg)](https://www.youtube.com/embed/XRLHp-QBhCE "Vehicle Tracking Video on YouTube")
 
 
-####2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
+####2. Filter for false positives and overlapping bounding boxes.
 
 I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
 
-Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
+Here's an example result showing a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
 
-### Here are six frames and their corresponding heatmaps:
-
-![alt text][image5]
-
-### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
-![alt text][image6]
-
-### Here the resulting bounding boxes are drawn onto the last frame in the series:
 ![alt text][image7]
 
 

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-def visualize(rbg_img_matrix, title_matrix, save_to_file='', enable_show= False):
+def visualize(rbg_img_matrix, title_matrix, save_to_file='', enable_show= False, figsize=None):
     """show images in a grid layout
     
     Args:
@@ -24,9 +24,14 @@ def visualize(rbg_img_matrix, title_matrix, save_to_file='', enable_show= False)
     assert len(rbg_img_matrix[0]) != 0
     assert len(title_matrix[0]) != 0
     
+
     f, axes = plt.subplots(row_len, col_len)
 
-    f.tight_layout()
+
+    if figsize!= None:
+        f.set_figwidth(figsize[0])
+        f.set_figheight(figsize[1])
+
 
     for row in range(row_len):
 
@@ -49,9 +54,12 @@ def visualize(rbg_img_matrix, title_matrix, save_to_file='', enable_show= False)
                 
             img = rbg_img_matrix[row][col]
             title = title_matrix[row][col]
+
             ax.imshow(img)
             ax.set_title(title)
             ax.axis('off')
+
+    f.tight_layout()
 
 
     # plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)

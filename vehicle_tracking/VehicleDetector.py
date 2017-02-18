@@ -224,6 +224,36 @@ def main():
 
     car_detector = VehicleDetector(enable_checkpoint=True)
 
+
+    print('--------- Test label() and filtering on continuous video frames ------ ')
+    car_detector.resetHeatmap() # image is not related to previous one
+
+    sample_dir='data/test_images/stream/'
+    images_loc = glob.glob(sample_dir+'*.jpg')
+
+    img_list =[]
+    title_list = []
+    for img_loc in images_loc:
+        img_bgr = cv2.imread(img_loc)
+        img_labled_bgr, label_map = car_detector.labelCars(img_bgr)
+        img_labled_rgb = cv2.cvtColor(img_labled_bgr, cv2.COLOR_BGR2RGB)
+
+        img_list.append([img_labled_rgb, label_map])
+        # img_filename = img_loc[-8:]
+        path, img_filename = os.path.split(img_loc)   
+
+        print('Loading {}...'.format(img_filename))
+        logger.info('Tested {}.'.format(img_filename))
+        title_list.append( [img_filename+' - Labeled Image ', img_filename+' - Label Map '] )
+
+
+    loc_to_save = 'data/outputs/output_bboxes.png'
+
+
+
+    visualize(img_list, title_list, loc_to_save, figsize=(10,20), enable_show=True)
+
+
     print('\n\n######################### Video Frame Test ############################ \n')
 
     print('--------- Test multi-size windows ------ ')
@@ -358,31 +388,7 @@ def main():
                     loc_to_save, enable_show=False)
 
 
-    print('--------- Test label() and filtering on continuous video frames ------ ')
-    car_detector.resetHeatmap() # image is not related to previous one
 
-    sample_dir='data/test_images/stream/'
-    images_loc = glob.glob(sample_dir+'*.jpg')
-
-    img_list =[]
-    title_list = []
-    for img_loc in images_loc:
-        img_bgr = cv2.imread(img_loc)
-        img_labled_bgr, label_map = car_detector.labelCars(img_bgr)
-        img_labled_rgb = cv2.cvtColor(img_labled_bgr, cv2.COLOR_BGR2RGB)
-
-        img_list.append([img_labled_rgb, label_map])
-        # img_filename = img_loc[-8:]
-        path, img_filename = os.path.split(img_loc)   
-
-        print('Loading {}...'.format(img_filename))
-        logger.info('Tested {}.'.format(img_filename))
-        title_list.append( [img_filename+' - Labeled Image ', img_filename+' - Label Map '] )
-
-        loc_to_save = sample_dir + 'labeled/labeled_' +img_filename
-        visualize(img_list, title_list, loc_to_save)
-        img_list =[]
-        title_list = []
 
 
 
