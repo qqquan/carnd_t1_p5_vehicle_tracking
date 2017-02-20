@@ -6,27 +6,14 @@ import cv2
 
 vehicle_detector = VehicleDetector( enable_checkpoint=False)
 
-DBG_counter=0
 
 def process_image(img):
-    global DBG_counter
-    
-
 
     img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-    # cv2.imwrite('data/debug_all_images/input/'+ str(DBG_counter)+'.jpg', img_bgr)
-
     img_bgr = vehicle_detector.hightlightCars(img_bgr)
 
-    # cv2.imwrite('data/debug_all_images/output/'+ str(DBG_counter)+'.jpg', img_bgr)
-    DBG_counter += 1
-
-
     img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-
-
-
 
     return img_rgb
 
